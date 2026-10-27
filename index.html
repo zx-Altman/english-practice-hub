@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>英语练习台 · English Practice Hub</title>
+<style>
+  :root {
+    color-scheme: light;
+    --page: #f9f9f7;
+    --surface-1: #fcfcfb;
+    --ink: #0b0b0b;
+    --ink-2: #52514e;
+    --muted: #898781;
+    --grid: #e1e0d9;
+    --baseline: #c3c2b7;
+    --border: rgba(11,11,11,0.10);
+    --series: #2a78d6;
+    --good: #0ca30c;
+    --good-text: #006300;
+    --warn: #fab219;
+    --serious: #ec835a;
+    --hm-0: #e1e0d9; --hm-1: #9ec5f4; --hm-2: #5598e7; --hm-3: #256abf; --hm-4: #184f95;
+    --accent-wash: rgba(42,120,214,0.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      color-scheme: dark;
+      --page: #0d0d0d;
+      --surface-1: #1a1a19;
+      --ink: #f0efec;
+      --ink-2: #c3c2b7;
+      --muted: #898781;
+      --grid: #2c2c2a;
+      --baseline: #383835;
+      --border: rgba(255,255,255,0.10);
+      --series: #3987e5;
+      --good: #0ca30c;
+      --good-text: #0ca30c;
+      --warn: #fab219;
+      --serious: #ec835a;
+      --hm-0: #2c2c2a; --hm-1: #184f95; --hm-2: #256abf; --hm-3: #3987e5; --hm-4: #86b6ef;
+      --accent-wash: rgba(57,135,229,0.12);
+    }
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: system-ui, -apple-system, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    background: var(--page); color: var(--ink); font-size: 15px; line-height: 1.6;
+    padding-bottom: 60px;
+  }
+  .wrap { max-width: 860px; margin: 0 auto; padding: 0 20px; }
+
+  /* ---- header & tabs ---- */
+  header { border-bottom: 1px solid var(--grid); background: var(--surface-1); }
+  .head-row { display: flex; align-items: baseline; justify-content: space-between; padding: 18px 0 10px; flex-wrap: wrap; gap: 6px; }
+  h1 { font-size: 20px; font-weight: 700; }
+  .updated { font-size: 12px; color: var(--muted); }
+  nav { display: flex; gap: 4px; padding-bottom: 0; overflow-x: auto; }
+  nav button {
+    appearance: none; border: none; background: none; cursor: pointer;
+    font: inherit; font-size: 14px; color: var(--ink-2);
+    padding: 10px 14px; border-bottom: 2px solid transparent; white-space: nowrap;
+  }
+  nav button:hover { color: var(--ink); background: var(--accent-wash); }
+  nav button.on { color: var(--ink); font-weight: 600; border-bottom-color: var(--series); }
+
+  section.tab { display: none; padding-top: 20px; }
+  section.tab.on { display: block; }
+
+  .card {
+    background: var(--surface-1); border: 1px solid var(--border);
+    border-radius: 10px; padding: 18px 20px; margin-bottom: 16px;
+  }
+  h2 { font-size: 16px; font-weight: 650; margin-bottom: 12px; }
+  h3 { font-size: 14px; font-weight: 600; color: var(--ink-2); margin: 14px 0 8px; }
+  .muted { color: var(--muted); font-size: 13px; }
+  .en { font-variant-numeric: tabular-nums; }
+
+  /* ---- today ---- */
+  .pack-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+  .pack-title { font-size: 17px; font-weight: 650; }
+  .type-badge {
+    display: inline-block; font-size: 12px; font-weight: 600; color: var(--ink);
+    background: var(--accent-wash); border-radius: 999px; padding: 2px 10px; margin-left: 8px;
+  }
+  .date-nav { display: flex; gap: 6px; }
+  .date-nav button {
+    appearance: none; border: 1px solid var(--border); background: var(--surface-1); color: var(--ink-2);
+    border-radius: 8px; padding: 5px 12px; cursor: pointer; font: inherit; font-size: 13px;
+  }
+  .date-nav button:hover:not(:disabled) { border-color: var(--series); color: var(--ink); }
+  .date-nav button:disabled { opacity: .35; cursor: default; }
+  .q-progress { font-size: 13px; color: var(--muted); margin: 10px 0 4px; }
+  .q-progress .bar { height: 4px; background: var(--grid); border-radius: 2px; margin-top: 6px; overflow: hidden; }
+  .q-progress .bar i { display: block; height: 100%; background: var(--series); border-radius: 2px; transition: width .3s; }
+  .prompt { font-size: 16px; margin: 14px 0; line-height: 1.7; }
+  textarea {
+    width: 100%; min-height: 84px; resize: vertical;
+    font: inherit; font-size: 14px; line-height: 1.6;
+    background: var(--page); color: var(--ink);
+    border: 1px solid var(--grid); border-radius: 8px; padding: 10px 12px;
+  }
+  textarea:focus { outline: 2px solid var(--series); outline-offset: -1px; }
+  .btn {
+    appearance: none; cursor: pointer; font: inherit; font-size: 14px; font-weight: 600;
+    background: var(--series); color: #fff; border: none; border-radius: 8px; padding: 9px 20px;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn.ghost { background: none; color: var(--ink-2); border: 1px solid var(--border); font-weight: 500; }
+  .btn.ghost:hover { border-color: var(--series); color: var(--ink); }
+  .answer { border-left: 3px solid var(--series); background: var(--accent-wash); border-radius: 0 8px 8px 0; padding: 12px 14px; margin: 14px 0; }
+  .answer .a-label { font-size: 12px; font-weight: 700; color: var(--series); letter-spacing: .05em; }
+  .answer .a-text { font-size: 15px; margin: 4px 0 6px; }
+  .answer ul { margin: 6px 0 0 18px; }
+  .answer li { font-size: 13px; color: var(--ink-2); }
+  .grade-row { display: flex; gap: 10px; margin-top: 12px; flex-wrap: wrap; }
+  .grade-btn {
+    appearance: none; cursor: pointer; font: inherit; font-size: 14px; font-weight: 600;
+    border-radius: 8px; padding: 8px 18px; border: 1px solid var(--border); background: var(--surface-1); color: var(--ink-2);
+  }
+  .grade-btn[data-g="ok"]:hover { border-color: var(--good); color: var(--good-text); }
+  .grade-btn[data-g="half"]:hover { border-color: var(--warn); color: var(--ink); }
+  .grade-btn[data-g="bad"]:hover { border-color: var(--serious); color: var(--serious); }
+  .grade-btn.picked { border-width: 2px; padding: 7px 17px; }
+  .grade-btn.picked[data-g="ok"] { border-color: var(--good); color: var(--good-text); }
+  .grade-btn.picked[data-g="half"] { border-color: var(--warn); color: var(--ink); }
+  .grade-btn.picked[data-g="bad"] { border-color: var(--serious); color: var(--serious); }
+  .done-summary { text-align: center; padding: 10px 0; }
+  .done-summary .big { font-size: 22px; font-weight: 700; margin: 6px 0; }
+  .done-chips { display: flex; justify-content: center; gap: 14px; font-size: 14px; color: var(--ink-2); margin: 8px 0 16px; }
+  .done-chips b { font-variant-numeric: tabular-nums; }
+  .grade-dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:5px; vertical-align: 1px; }
+
+  /* ---- stat tiles ---- */
+  .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .tile { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+  .tile .v { font-size: 26px; font-weight: 700; line-height: 1.2; }
+  .tile .k { font-size: 12px; color: var(--muted); margin-top: 2px; }
+
+  /* ---- charts ---- */
+  .chart-title { font-size: 14px; font-weight: 650; margin: 4px 0 10px; }
+  .hbar-row { display: grid; grid-template-columns: 76px 1fr 34px; align-items: center; gap: 10px; margin-bottom: 8px; }
+  .hbar-label { font-size: 13px; color: var(--ink-2); text-align: right; }
+  .hbar-track { height: 18px; }
+  .hbar-fill { height: 100%; background: var(--series); border-radius: 0 4px 4px 0; min-width: 2px; }
+  .hbar-val { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+  .hm-months { display: flex; font-size: 11px; color: var(--muted); margin-left: 30px; margin-bottom: 3px; }
+  .hm-grid { display: flex; gap: 3px; }
+  .hm-days { display: flex; flex-direction: column; gap: 3px; font-size: 10px; color: var(--muted); width: 26px; justify-content: space-between; padding-top: 0; }
+  .hm-days span { height: 13px; line-height: 13px; }
+  .hm-col { display: flex; flex-direction: column; gap: 3px; }
+  .hm-cell { width: 13px; height: 13px; border-radius: 3px; }
+  .hm-legend { display: flex; align-items: center; gap: 4px; font-size: 11px; color: var(--muted); margin-top: 8px; margin-left: 30px; }
+  .hm-legend .hm-cell { width: 11px; height: 11px; }
+  svg text { font-family: inherit; }
+
+  /* ---- error bank ---- */
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+  .chip {
+    appearance: none; cursor: pointer; font: inherit; font-size: 13px;
+    border: 1px solid var(--border); background: var(--surface-1); color: var(--ink-2);
+    border-radius: 999px; padding: 4px 14px;
+  }
+  .chip.on { background: var(--accent-wash); border-color: var(--series); color: var(--ink); font-weight: 600; }
+  select {
+    font: inherit; font-size: 13px; color: var(--ink-2);
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px; padding: 4px 8px;
+  }
+  .err-card { border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px; margin-bottom: 10px; background: var(--surface-1); }
+  .err-top { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; flex-wrap: wrap; }
+  .badge { font-size: 11px; font-weight: 600; border-radius: 5px; padding: 1px 8px; border: 1px solid var(--border); color: var(--ink-2); }
+  .badge.status { display: inline-flex; align-items: center; gap: 5px; }
+  .badge.status i { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+  .err-wrong { color: var(--muted); text-decoration: line-through; font-size: 14px; }
+  .err-right { font-size: 15px; font-weight: 600; margin: 3px 0 6px; }
+  .err-note { font-size: 13px; color: var(--ink-2); }
+  .err-meta { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+  /* ---- notes / recite ---- */
+  details.note-group { border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; background: var(--surface-1); }
+  details.note-group summary { cursor: pointer; padding: 12px 16px; font-weight: 600; font-size: 14px; list-style: none; display: flex; justify-content: space-between; align-items: center; }
+  details.note-group summary::-webkit-details-marker { display: none; }
+  details.note-group summary .count { font-size: 12px; color: var(--muted); font-weight: 400; }
+  details.note-group .body { padding: 0 16px 14px; }
+  .note-item { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 7px 0; border-top: 1px solid var(--grid); font-size: 14px; }
+  .note-item .zh { color: var(--ink-2); }
+  .recite-item { display: flex; align-items: flex-start; gap: 10px; padding: 9px 0; border-top: 1px solid var(--grid); }
+  .recite-item:first-of-type { border-top: none; }
+  .recite-item input[type=checkbox] { margin-top: 4px; width: 16px; height: 16px; accent-color: var(--series); cursor: pointer; }
+  .recite-pair .wrong { color: var(--muted); text-decoration: line-through; font-size: 13px; }
+  .recite-pair .right { font-size: 14.5px; font-weight: 600; }
+  .recite-pair.done .right { color: var(--good-text); }
+  .group-progress { font-size: 12px; color: var(--muted); }
+
+  #tooltip {
+    position: fixed; display: none; pointer-events: none; z-index: 50;
+    background: var(--ink); color: var(--page); font-size: 12px; line-height: 1.5;
+    border-radius: 6px; padding: 6px 10px; max-width: 240px;
+  }
+  .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
+  .empty .btn { margin-top: 14px; }
+  @media (max-width: 560px) { .note-item { grid-template-columns: 1fr; gap: 2px; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="head-row">
+      <h1>英语练习台</h1>
+      <span class="muted">数据更新于 <span id="updatedAt"></span> · 与 Claude 练习后自动同步</span>
+    </div>
+    <nav id="tabs">
+      <button data-tab="today" class="on">今日练习</button>
+      <button data-tab="errors">错题本</button>
+      <button data-tab="notes">笔记库</button>
+      <button data-tab="recite">必背句</button>
+      <button data-tab="stats">统计打卡</button>
+    </nav>
+  </div>
+</header>
+
+<div class="wrap">
+  <section class="tab on" id="tab-today"></section>
+  <section class="tab" id="tab-errors"></section>
+  <section class="tab" id="tab-notes"></section>
+  <section class="tab" id="tab-recite"></section>
+  <section class="tab" id="tab-stats"></section>
+</div>
+
+<div id="tooltip"></div>
+
+<script src="data.js?v=2026-10-27"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script>
+(function () {
+  "use strict";
+  const D = PRACTICE_DATA;
+  const $ = (s, el) => (el || document).querySelector(s);
+  const $$ = (s, el) => Array.from((el || document).querySelectorAll(s));
+  const todayStr = () => {
+    const d = new Date();
+    return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  };
+  const iso = d => d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+
+  /* ---------- storage ---------- */
+  const store = {
+    get(key, fallback) {
+      try { return JSON.parse(localStorage.getItem(key)) ?? fallback; }
+      catch { return fallback; }
+    },
+    set(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+  };
+  let progress = store.get("ep_progress", {});     // {packDate: {answers:[], grades:[], doneAt}}
+  let activity = store.get("ep_activity", {});     // {dateStr: count}
+  let reciteDone = store.get("ep_recite", {});     // {"group|i": true}
+
+  const saveAll = () => { store.set("ep_progress", progress); store.set("ep_activity", activity); store.set("ep_recite", reciteDone); };
+  const bumpActivity = () => { const t = todayStr(); activity[t] = (activity[t] || 0) + 1; store.set("ep_activity", activity); };
+
+  /* ---------- tooltip ---------- */
+  const tip = $("#tooltip");
+  const showTip = (ev, html) => {
+    tip.innerHTML = html; tip.style.display = "block";
+    const x = Math.min(ev.clientX + 12, window.innerWidth - 250);
+    tip.style.left = x + "px"; tip.style.top = (ev.clientY + 14) + "px";
+  };
+  const hideTip = () => { tip.style.display = "none"; };
+  const bindTip = (el, html) => {
+    el.addEventListener("mousemove", ev => showTip(ev, html));
+    el.addEventListener("mouseleave", hideTip);
+  };
+
+  /* ---------- tabs ---------- */
+  $("#tabs").addEventListener("click", e => {
+    const btn = e.target.closest("button"); if (!btn) return;
+    $$("nav button").forEach(b => b.classList.toggle("on", b === btn));
+    $$("section.tab").forEach(s => s.classList.toggle("on", s.id === "tab-" + btn.dataset.tab));
+  });
+
+  /* ================= TODAY ================= */
+  const packs = D.packs.slice().sort((a, b) => a.date < b.date ? -1 : 1);
+  let packIdx = Math.max(0, packs.findIndex(p => p.date === todayStr()));
+  if (packIdx < 0) packIdx = packs.length - 1; // 无今日题包 → 显示最近一期
+  let qi = 0, revealed = false;
+
+  function renderToday() {
+    const el = $("#tab-today");
+    if (!packs.length) {
+      el.innerHTML = '<div class="card empty">还没有题包。<br>和 Claude 练习后，题包会自动出现在这里。</div>';
+      return;
+    }
+    const p = packs[packIdx];
+    const rec = progress[p.date] || { answers: [], grades: [] };
+    const answered = (rec.grades || []).filter(g => g).length;
+    const allDone = answered === p.items.length;
+
+    if (allDone) {
+      const ok = rec.grades.filter(g => g === "ok").length;
+      const half = rec.grades.filter(g => g === "half").length;
+      const bad = rec.grades.filter(g => g === "bad").length;
+      el.innerHTML = `
+        <div class="card">
+          <div class="pack-head">
+            <div class="pack-title">${p.date} ${p.weekday}<span class="type-badge">${p.type}</span></div>
+            <div class="date-nav">
+              <button id="navPrev" ${packIdx === 0 ? "disabled" : ""}>← 前一天</button>
+              <button id="navNext" ${packIdx === packs.length - 1 ? "disabled" : ""}>后一天 →</button>
+            </div>
+          </div>
+          <div class="done-summary">
+            <div class="muted">本期练习完成 🎉</div>
+            <div class="big en">${ok} / ${p.items.length} 全对</div>
+            <div class="done-chips">
+              <span><i class="grade-dot" style="background:var(--good)"></i>全对 <b>${ok}</b></span>
+              <span><i class="grade-dot" style="background:var(--warn)"></i>半对 <b>${half}</b></span>
+              <span><i class="grade-dot" style="background:var(--serious)"></i>有错 <b>${bad}</b></span>
+            </div>
+            <button class="btn ghost" id="redo">重做一遍</button>
+          </div>
+          <div id="reviewList"></div>
+        </div>`;
+      const rl = $("#reviewList");
+      p.items.forEach((it, i) => {
+        const g = rec.grades[i];
+        const box = document.createElement("div");
+        box.className = "answer";
+        box.style.marginTop = "10px";
+        box.innerHTML = `
+          <div class="a-label">第 ${i + 1} 题 · ${g === "ok" ? "✅ 全对" : g === "half" ? "⚠️ 半对" : "❌ 有错"}</div>
+          <div class="a-text">${it.a}</div>
+          ${it.notes && it.notes.length ? "<ul>" + it.notes.map(n => `<li>${n}</li>`).join("") + "</ul>" : ""}`;
+        rl.appendChild(box);
+      });
+      $("#redo").onclick = () => { delete progress[p.date]; store.set("ep_progress", progress); qi = 0; revealed = false; renderToday(); };
+      $("#navPrev").onclick = () => { if (packIdx > 0) { packIdx--; revealed = false; renderToday(); } };
+      $("#navNext").onclick = () => { if (packIdx < packs.length - 1) { packIdx++; revealed = false; renderToday(); } };
+    } else {
+      // 找到第一个未作答题
+      qi = Math.max(0, (rec.grades || []).findIndex(g => !g));
+      if ((rec.grades || []).every(g => g) && rec.grades.length) qi = rec.grades.length;
+      const it = p.items[qi];
+      el.innerHTML = `
+        <div class="card">
+          <div class="pack-head">
+            <div class="pack-title">${p.date} ${p.weekday}<span class="type-badge">${p.type}</span></div>
+            <div class="date-nav">
+              <button id="navPrev" ${packIdx === 0 ? "disabled" : ""}>← 前一天</button>
+              <button id="navNext" ${packIdx === packs.length - 1 ? "disabled" : ""}>后一天 →</button>
+            </div>
+          </div>
+          <div class="q-progress">
+            第 ${qi + 1} / ${p.items.length} 题
+            <div class="bar"><i style="width:${qi / p.items.length * 100}%"></i></div>
+          </div>
+          <div class="prompt">${it.q}</div>
+          <textarea id="ansBox" placeholder="写下你的答案（练习记忆效果：先自己写，再对照）">${(rec.answers || [])[qi] || ""}</textarea>
+          <div style="margin-top:12px">
+            <button class="btn" id="revealBtn">查看答案</button>
+            <span class="muted" style="margin-left:10px">写完再翻 —— 检索记忆比重读强得多</span>
+          </div>
+          <div id="answerZone"></div>
+        </div>`;
+      $("#navPrev").onclick = () => { if (packIdx > 0) { packIdx--; revealed = false; renderToday(); } };
+      $("#navNext").onclick = () => { if (packIdx < packs.length - 1) { packIdx++; revealed = false; renderToday(); } };
+      $("#ansBox").oninput = e => {
+        progress[p.date] = progress[p.date] || { answers: [], grades: [] };
+        progress[p.date].answers[qi] = e.target.value;
+        store.set("ep_progress", progress);
+      };
+      $("#revealBtn").onclick = () => { revealed = true; renderAnswer(p, it, qi); };
+      if (revealed) renderAnswer(p, it, qi);
+    }
+  }
+
+  function renderAnswer(p, it, i) {
+    const zone = $("#answerZone"); if (!zone) return;
+    const rec = progress[p.date] || { answers: [], grades: [] };
+    zone.innerHTML = `
+      <div class="answer">
+        <div class="a-label">参考答案</div>
+        <div class="a-text">${it.a}</div>
+        ${it.notes && it.notes.length ? "<ul>" + it.notes.map(n => `<li>${n}</li>`).join("") + "</ul>" : ""}
+      </div>
+      <div class="grade-row">
+        <button class="grade-btn ${rec.grades[i] === "ok" ? "picked" : ""}" data-g="ok">✅ 全对</button>
+        <button class="grade-btn ${rec.grades[i] === "half" ? "picked" : ""}" data-g="half">⚠️ 半对</button>
+        <button class="grade-btn ${rec.grades[i] === "bad" ? "picked" : ""}" data-g="bad">❌ 有错</button>
+        <button class="btn" id="nextQ" style="margin-left:auto">${i + 1 < p.items.length ? "下一题 →" : "完成本期 🎉"}</button>
+      </div>`;
+    $$(".grade-btn", zone).forEach(btn => {
+      btn.onclick = () => {
+        progress[p.date] = progress[p.date] || { answers: [], grades: [] };
+        const prev = progress[p.date].grades[i];
+        progress[p.date].grades[i] = btn.dataset.g;
+        if (!prev) bumpActivity();
+        store.set("ep_progress", progress);
+        $$(".grade-btn", zone).forEach(b => b.classList.toggle("picked", b === btn));
+      };
+    });
+    $("#nextQ").onclick = () => {
+      const g = (progress[p.date] && progress[p.date].grades) ? progress[p.date].grades[i] : null;
+      if (!g) { alert("先给自己打个分：全对 / 半对 / 有错"); return; }
+      revealed = false;
+      if (i + 1 < p.items.length) { qi = i + 1; renderToday(); }
+      else { renderToday(); }
+    };
+  }
+
+  /* ================= ERRORS ================= */
+  let errStatus = "all", errCat = "all";
+  function renderErrors() {
+    const el = $("#tab-errors");
+    const all = D.errorBank;
+    const active = all.filter(e => e.status === "active");
+    const watching = all.filter(e => e.status === "watching");
+    const grad = all.filter(e => e.status === "graduated");
+    const rate = all.length ? Math.round(grad.length / all.length * 100) : 0;
+
+    // 分类统计
+    const catCount = {};
+    all.forEach(e => { catCount[e.category] = (catCount[e.category] || 0) + e.wrongCount; });
+    const cats = Object.entries(catCount).sort((a, b) => b[1] - a[1]);
+    const maxC = cats.length ? cats[0][1] : 1;
+
+    const catsOpts = ["all"].concat(Object.keys(catCount));
+    el.innerHTML = `
+      <div class="tiles">
+        <div class="tile"><div class="v en">${all.length}</div><div class="k">累计错题模式</div></div>
+        <div class="tile"><div class="v en">${active.length}</div><div class="k">活跃（重点攻克）</div></div>
+        <div class="tile"><div class="v en">${watching.length}</div><div class="k">观察中</div></div>
+        <div class="tile"><div class="v en">${grad.length}<span class="muted" style="font-size:15px"> / ${all.length}</span></div><div class="k">已毕业（${rate}%）</div></div>
+      </div>
+      <div class="card">
+        <div class="chart-title">错误分类占比（按累计出错次数）</div>
+        ${cats.map(([c, n]) => `
+          <div class="hbar-row">
+            <div class="hbar-label">${c}</div>
+            <div class="hbar-track"><div class="hbar-fill" data-cat="${c}" style="width:${n / maxC * 100}%"></div></div>
+            <div class="hbar-val">${n} 次</div>
+          </div>`).join("")}
+      </div>
+      <div class="card">
+        <div class="filters">
+          ${[["all", "全部"], ["active", "活跃"], ["watching", "观察中"], ["graduated", "已毕业"]].map(([v, l]) =>
+            `<button class="chip ${errStatus === v ? "on" : ""}" data-st="${v}">${l}</button>`).join("")}
+          <select id="catSel">${catsOpts.map(c => `<option value="${c}" ${errCat === c ? "selected" : ""}>${c === "all" ? "全部分类" : c}</option>`).join("")}</select>
+        </div>
+        <div id="errList"></div>
+      </div>`;
+    $$(".chip", el).forEach(ch => ch.onclick = () => { errStatus = ch.dataset.st; renderErrors(); });
+    $("#catSel").onchange = e => { errCat = e.target.value; renderErrors(); };
+
+    const statusMeta = {
+      active: { label: "活跃", color: "var(--serious)" },
+      watching: { label: "观察中", color: "var(--warn)" },
+      graduated: { label: "已毕业", color: "var(--good)" }
+    };
+    const list = all.filter(e =>
+      (errStatus === "all" || e.status === errStatus) && (errCat === "all" || e.category === errCat)
+    ).sort((a, b) => {
+      const rank = { active: 0, watching: 1, graduated: 2 };
+      return rank[a.status] - rank[b.status] || b.wrongCount - a.wrongCount;
+    });
+    const listEl = $("#errList");
+    if (!list.length) { listEl.innerHTML = '<div class="empty" style="padding:20px">这个筛选下没有错题</div>'; return; }
+    list.forEach(e => {
+      const sm = statusMeta[e.status];
+      const card = document.createElement("div");
+      card.className = "err-card";
+      card.innerHTML = `
+        <div class="err-top">
+          <span class="badge">${e.category}</span>
+          <span class="badge status"><i style="background:${sm.color}"></i>${sm.label}</span>
+        </div>
+        <div class="err-wrong">${e.wrong}</div>
+        <div class="err-right">⭐ ${e.right}</div>
+        <div class="err-note">${e.note}</div>
+        <div class="err-meta">累计出错 ${e.wrongCount} 次 · 最近一次 ${e.lastWrong}${e.graduatedOn ? " · 毕业于 " + e.graduatedOn : ""}</div>`;
+      listEl.appendChild(card);
+    });
+  }
+
+  /* ================= NOTES ================= */
+  function renderNotes() {
+    const el = $("#tab-notes");
+    el.innerHTML = D.notes.map((g, gi) => `
+      <details class="note-group" ${gi === 0 ? "open" : ""}>
+        <summary>${g.scene}<span class="count">${g.items.length} 条</span></summary>
+        <div class="body">
+          ${g.items.map(it => `<div class="note-item"><div>${it.en}</div><div class="zh">${it.zh}</div></div>`).join("")}
+        </div>
+      </details>`).join("");
+  }
+
+  /* ================= RECITE ================= */
+  function renderRecite() {
+    const el = $("#tab-recite");
+    el.innerHTML = `<div class="muted" style="margin-bottom:12px">出声背，带语调。勾选 = 这句已经能脱口而出（真实对话中自然用出 2 次即毕业）。</div>` +
+      D.recite.map((g, gi) => {
+        const done = g.items.filter((_, ii) => reciteDone[gi + "|" + ii]).length;
+        return `
+        <div class="card">
+          <h2 style="margin-bottom:4px">${g.group}</h2>
+          <div class="group-progress en">${done} / ${g.items.length} 已脱口而出</div>
+          <div style="margin-top:8px">
+          ${g.items.map((it, ii) => {
+            const key = gi + "|" + ii;
+            const on = !!reciteDone[key];
+            return `
+            <label class="recite-item">
+              <input type="checkbox" data-key="${key}" ${on ? "checked" : ""}>
+              <div class="recite-pair ${on ? "done" : ""}">
+                <div class="wrong">❌ ${it.wrong}</div>
+                <div class="right">⭐ ${it.right}</div>
+              </div>
+            </label>`;
+          }).join("")}
+          </div>
+        </div>`;
+      }).join("");
+    $$('input[type=checkbox]', el).forEach(cb => {
+      cb.onchange = () => {
+        reciteDone[cb.dataset.key] = cb.checked || undefined;
+        saveAll(); renderRecite();
+      };
+    });
+  }
+
+  /* ================= STATS ================= */
+  function renderStats() {
+    const el = $("#tab-stats");
+
+    // 连续打卡
+    let streak = 0;
+    { const d = new Date();
+      if (!activity[iso(d)]) d.setDate(d.getDate() - 1); // 今天还没练不打断连击
+      while (activity[iso(d)]) { streak++; d.setDate(d.getDate() - 1); }
+    }
+    const totalQ = Object.values(activity).reduce((a, b) => a + b, 0);
+    const activeDays = Object.keys(activity).length;
+
+    // 热力图：最近 16 周
+    const weeks = 16, cell = 13, gap = 3;
+    const dayNames = ["一", "", "二", "", "三", "", "四", "", "五", "", "六", "", "日"];
+    const end = new Date(); end.setHours(0, 0, 0, 0);
+    const dow = (end.getDay() + 6) % 7; // 周一=0
+    const thisMonday = new Date(end); thisMonday.setDate(end.getDate() - dow);
+    const startMonday = new Date(thisMonday); startMonday.setDate(thisMonday.getDate() - (weeks - 1) * 7);
+    const hmLevels = [0, 1, 2, 3, 4];
+    const lvColor = n => n <= 0 ? "var(--hm-0)" : n === 1 ? "var(--hm-1)" : n === 2 ? "var(--hm-2)" : n === 3 ? "var(--hm-3)" : "var(--hm-4)";
+    let hmCells = "", monthMarks = [];
+    let curMonth = -1;
+    for (let w = 0; w < weeks; w++) {
+      let col = "";
+      for (let d = 0; d < 7; d++) {
+        const date = new Date(startMonday); date.setDate(startMonday.getDate() + w * 7 + d);
+        const s = iso(date);
+        if (date > end) { col += `<div class="hm-cell" style="background:transparent"></div>`; continue; }
+        const n = activity[s] || 0;
+        const dd = date.getDate();
+        if (d === 0 && date.getMonth() !== curMonth && dd <= 14) {
+          curMonth = date.getMonth();
+          monthMarks.push({ w, label: (date.getMonth() + 1) + "月" });
+        }
+        col += `<div class="hm-cell" data-d="${s}" data-n="${n}" style="background:${lvColor(n)}"></div>`;
+      }
+      hmCells += `<div class="hm-col">${col}</div>`;
+    }
+    let monthsHtml = "";
+    let lastW = -1;
+    monthMarks.forEach(m => { monthsHtml += `<span style="margin-left:${(m.w - lastW - 1) * (cell + gap)}px">${m.label}</span>`; lastW = m.w; });
+
+    // 每周答题数（最近 8 周）
+    const wk = 8, w = 90, bw = 34, bh = 110;
+    const wkData = [];
+    for (let i = wk - 1; i >= 0; i--) {
+      const mon = new Date(thisMonday); mon.setDate(thisMonday.getDate() - i * 7);
+      const sun = new Date(mon); sun.setDate(mon.getDate() + 6);
+      let n = 0;
+      for (let d = new Date(mon); d <= sun; d.setDate(d.getDate() + 1)) n += activity[iso(d)] || 0;
+      wkData.push({ label: (mon.getMonth() + 1) + "/" + mon.getDate(), n });
+    }
+    const maxN = Math.max(1, ...wkData.map(x => x.n));
+    let barsSvg = `<svg viewBox="0 0 ${wk * bw + 20} ${bh + 34}" style="width:100%;max-width:460px">`;
+    barsSvg += `<line x1="10" y1="${bh + 6}" x2="${wk * bw + 10}" y2="${bh + 6}" stroke="var(--baseline)" stroke-width="1"/>`;
+    wkData.forEach((d, i) => {
+      const h = d.n / maxN * (bh - 20);
+      const x = 10 + i * bw + (bw - 20) / 2;
+      const y = bh + 6 - 4 - h;
+      barsSvg += `<rect x="${x}" y="${y}" width="20" height="${Math.max(h, 2)}" rx="3" fill="var(--series)" data-wk="${d.label}" data-n="${d.n}"><title>${d.label} 那周 · ${d.n} 题</title></rect>`;
+      if (d.n > 0) barsSvg += `<text x="${x + 10}" y="${y - 6}" text-anchor="middle" font-size="11" fill="var(--ink-2)">${d.n}</text>`;
+      barsSvg += `<text x="${x + 10}" y="${bh + 22}" text-anchor="middle" font-size="10" fill="var(--muted)">${d.label}</text>`;
+    });
+    barsSvg += "</svg>";
+
+    el.innerHTML = `
+      <div class="tiles">
+        <div class="tile"><div class="v en">${streak}</div><div class="k">连续打卡（天）</div></div>
+        <div class="tile"><div class="v en">${activeDays}</div><div class="k">累计练习天数</div></div>
+        <div class="tile"><div class="v en">${totalQ}</div><div class="k">累计答题数</div></div>
+      </div>
+      <div class="card">
+        <div class="chart-title">练习热力图（近 16 周，颜色越深当天练得越多）</div>
+        <div class="hm-months">${monthsHtml}</div>
+        <div class="hm-grid">
+          <div class="hm-days">${dayNames.map(n => `<span>${n}</span>`).join("")}</div>
+          ${hmCells}
+        </div>
+        <div class="hm-legend">少 <span class="hm-cell" style="background:var(--hm-0)"></span><span class="hm-cell" style="background:var(--hm-1)"></span><span class="hm-cell" style="background:var(--hm-2)"></span><span class="hm-cell" style="background:var(--hm-3)"></span><span class="hm-cell" style="background:var(--hm-4)"></span> 多</div>
+      </div>
+      <div class="card">
+        <div class="chart-title">每周答题数（近 8 周）</div>
+        ${barsSvg}
+      </div>`;
+    $$(".hm-cell[data-d]", el).forEach(c => {
+      const n = +c.dataset.n;
+      const d = c.dataset.d;
+      bindTip(c, n > 0 ? `${d} · 练了 ${n} 题` : `${d} · 休息`);
+    });
+  }
+
+  /* ---------- init ---------- */
+  $("#updatedAt").textContent = D.updatedAt;
+  renderToday(); renderErrors(); renderNotes(); renderRecite(); renderStats();
+})();
+</script>
+</body>
+</html>
