@@ -2,7 +2,7 @@
 // 修改这里，网站刷新即可看到最新内容
 const PRACTICE_DATA = {
 
-  updatedAt: "2026-10-27",
+  updatedAt: "2026-10-28",
 
   // ============ 每日题包（按日期） ============
   packs: [
@@ -62,6 +62,35 @@ const PRACTICE_DATA = {
         { q: "The survey shows that resting for one week doesn't weak your strength — actually it helps.",
           a: "Studies show that resting for one week won't make you lose strength — actually it helps.",
           notes: ["studies show（复数主语，动词不加 s，不加 the）", "make you lose strength（weak 是形容词）"] }
+      ]
+    },
+    {
+      date: "2026-10-28", weekday: "周三", type: "辨析选择",
+      items: [
+        { q: "选正确的句子：<br>A. We attended my cousin's wedding and created many common memories together.<br>B. We attended my cousin's wedding and made some good memories together.",
+          a: "B. We attended my cousin's wedding and made some good memories together.",
+          notes: ["make memories（固定搭配，不说 create）", "good memories（不说 common，together 已含\"共同\"）", "attend a wedding ✅ 两句都对的部分"] },
+        { q: "选正确的句子：<br>A. The survey shows that rest days won't make you lose strength.<br>B. Studies show that rest days won't make you lose strength.",
+          a: "B. Studies show that rest days won't make you lose strength.",
+          notes: ["学术\"研究表明\"用 studies（survey 是问卷调查）", "studies 复数主语，动词不加 s", "make you lose strength ✅ 两句都对的部分"] },
+        { q: "选正确的句子：<br>A. Even though the plan is boring, I insist on it to build muscle.<br>B. Even though the plan is boring, I stick to it to build muscle.",
+          a: "B. Even though the plan is boring, I stick to it to build muscle.",
+          notes: ["stick to（坚持做某事）", "insist on 是\"坚持要求/主张\"，不接计划", "boring 修饰事物 ✅"] },
+        { q: "选正确的句子：<br>A. Protein helps you build muscle after training.<br>B. Protein helps you grow muscles after training.",
+          a: "A. Protein helps you build muscle after training.",
+          notes: ["build muscle（增肌固定搭配）", "muscle 不可数，不加 s"] },
+        { q: "选正确的句子：<br>A. I'm having a business trip to Shanghai tomorrow.<br>B. I'm going on a business trip to Shanghai tomorrow.",
+          a: "B. I'm going on a business trip to Shanghai tomorrow.",
+          notes: ["go on a business trip（固定搭配）", "出差不说 have a business trip"] },
+        { q: "选正确的句子：<br>A. After the busy week, I'll take it easy this weekend.<br>B. After the busy week, I'll easy myself this weekend.",
+          a: "A. After the busy week, I'll take it easy this weekend.",
+          notes: ["take it easy（固定短语）", "easy 是形容词，不能当动词"] },
+        { q: "选正确的句子：<br>A. I took five days off from the gym last week.<br>B. I was five days off the gym last week.",
+          a: "A. I took five days off from the gym last week.",
+          notes: ["take + 时长 + off（主动休假）", "也可说 I was off for five days（时长放 off 后面）"] },
+        { q: "选正确的句子：<br>A. Pick up the package whenever it's convenient for you — no rush.<br>B. Pick up the package whenever you are convenient — no rush.",
+          a: "A. Pick up the package whenever it's convenient for you — no rush.",
+          notes: ["人不能做 convenient 的主语", "老朋友回访：这条你已毕业，保持全对！"] }
       ]
     }
   ],
