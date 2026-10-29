@@ -642,21 +642,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
     const normUser = userAns.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
     const normStd = stdAns.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
 
-    // 1. 提取核心考点短语并进行智能锚点切割
-    const targetPhrases = [];
-    if (notes && notes.length) {
-      notes.forEach(n => {
-        const match = n.match(/([a-zA-Z\s'\-]{3,})/);
-        if (match && match[1]) {
-          const p = match[1].trim().toLowerCase();
-          if (p.length >= 3 && !["and", "the", "for", "you", "not", "with", "this"].includes(p)) {
-            targetPhrases.push(p);
-          }
-        }
-      });
-    }
-
-    // 2. 智能模糊与时态匹配（容忍 Past Tense 时态如 took / went / made / ran）
+    // 动词变体表
     const verbForms = {
       take: ["took", "taken", "taking", "takes"],
       make: ["made", "making", "makes"],
@@ -668,112 +654,108 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
       recharge: ["recharged", "recharging"],
       heal: ["healed", "healing"],
       wrap: ["wrapped", "wrapping"],
-      work: ["worked", "working", "works"]
+      work: ["worked", "working", "works"],
+      devote: ["devoted", "devoting", "devotes"]
     };
+
+    // 核心短语列表（支持斜杠 / 或逗号分割多个同义替代短语，如 "recharge my batteries / recharge me"）
+    const noteTargets = [];
+    if (notes && notes.length) {
+      notes.forEach(n => {
+        const clean = n.replace(/（[^）]*）|\([^\)]*\)/g, "");
+        const parts = clean.split(/[\/,]/);
+        const options = [];
+        parts.forEach(part => {
+          const match = part.match(/([a-zA-Z\s'\-]{2,})/);
+          if (match && match[1]) {
+            const p = match[1].trim().toLowerCase();
+            if (p.length >= 2 && !["and", "the", "for", "you", "not", "with", "this"].includes(p)) {
+              options.push(p);
+            }
+          }
+        });
+        if (options.length) noteTargets.push(options);
+      });
+    }
 
     const hits = [];
     const misses = [];
-    const hitNotes = [];
 
-    targetPhrases.forEach(tp => {
-      if (normUser.includes(tp)) {
-        hits.push(tp);
-      } else {
-        // 拆分核心锚点词（去除 a/the/my 等虚词）
-        const coreAnchors = tp.split(" ").filter(w => !["my", "a", "the", "some", "your", "of"].includes(w) && w.length > 1);
+    noteTargets.forEach(options => {
+      // 只要匹配上任一同义选项（如 recharge my batteries 或 recharge me），就算命中
+      let itemHit = false;
+      let matchedPhrase = options[0];
+
+      for (const tp of options) {
+        const words = tp.split(" ").filter(w => !["my", "a", "the", "some", "your", "of", "in", "energy", "mobile", "data"].includes(w) && w.length > 1);
+        const anchors = words.length >= 2 ? words.slice(0, 2) : words;
+
+        let isHit = anchors.length > 0;
         let lastIdx = -1;
-        let isFuzzyHit = coreAnchors.length > 0;
 
-        coreAnchors.forEach(word => {
-          // 允许动词原形及其时态变体（如 take -> took）
-          const allowedVariants = [word].concat(verbForms[word] || []);
-          let foundIdx = -1;
-
-          for (const variant of allowedVariants) {
+        anchors.forEach(word => {
+          const allowed = [word].concat(verbForms[word] || []);
+          let found = false;
+          for (const variant of allowed) {
             const idx = normUser.indexOf(variant, lastIdx + 1);
             if (idx !== -1) {
-              foundIdx = idx;
+              found = true;
+              lastIdx = idx;
               break;
             }
           }
-
-          if (foundIdx !== -1) {
-            lastIdx = foundIdx;
-          } else {
-            isFuzzyHit = false;
-          }
+          if (!found) isHit = false;
         });
 
-        if (isFuzzyHit && coreAnchors.length >= 2) {
-          hits.push(tp);
-          hitNotes.push(`已识别你的时态/变体表达（如 take ➔ took）`);
-        } else {
-          misses.push(tp);
+        if (isHit) {
+          itemHit = true;
+          matchedPhrase = tp;
+          break;
         }
       }
+
+      if (itemHit) {
+        hits.push(matchedPhrase);
+      } else {
+        misses.push(options.join(" / "));
+      }
     });
 
-    // 3. 同义表达与近义词识别（避免误判）
-    const synonymNotes = [];
-    if (normUser.includes("eating healthy") || normUser.includes("healthy food")) {
-      if (normStd.includes("eating clean")) {
-        synonymNotes.push(`作答中的 "eating healthy food" 意图准确；参考答案中的 "eating clean" 是健身场景中更地道的表达。`);
-      }
-    }
-    if (normUser.includes("everyday") && normStd.includes("every day")) {
-      synonymNotes.push(`"everyday" 为形容词（日常的），副词"每天"地道拼写为 "every day"（分写）。`);
-    }
-
-    // 4. 单词重合率相似度
-    const userWords = normUser.split(" ");
-    const stdWords = normStd.split(" ");
-    const userWordSet = new Set(userWords.filter(w => w.length > 1));
+    // 计算基本单词重合度
+    const userWordSet = new Set(normUser.split(" ").filter(w => w.length > 1));
+    const stdWords = normStd.split(" ").filter(w => w.length > 1);
     let matchedCount = 0;
-    const stdMeaningfulWords = stdWords.filter(w => w.length > 1);
-    stdMeaningfulWords.forEach(w => { if (userWordSet.has(w)) matchedCount++; });
-    const similarity = stdMeaningfulWords.length > 0 ? Math.round((matchedCount / stdMeaningfulWords.length) * 100) : 0;
+    stdWords.forEach(w => { if (userWordSet.has(w)) matchedCount++; });
+    const similarity = stdWords.length > 0 ? Math.round((matchedCount / stdWords.length) * 100) : 0;
 
-    // 5. 语法细节与介词检错（排除同义/扩展修饰干扰）
-    const detailDiffs = [];
-    const prepList = ["at", "on", "in", "for", "to", "off", "with", "from", "into", "between"];
-    prepList.forEach(prep => {
-      if (normStd.includes(" " + prep + " ") && !normUser.includes(" " + prep + " ")) {
-        // 如果用户作答中存在同类介词或核心短语已命中，不误判
-        detailDiffs.push(`介词 <b>"${prep}"</b> (标准答案包含)`);
-      }
-    });
-
-    // 6. 综合推荐评分逻辑（避免因多加 daily 等修饰词而被误判为半对）
+    // 网页端定位：专注于核心搭配匹配，容忍所有句式与同义词变体
     let recGrade = "bad";
-    if ((similarity >= 70 || misses.length === 0) && hits.length > 0) {
+    if (hits.length > 0 || similarity >= 65) {
       recGrade = "ok";
-    } else if (similarity >= 35 || hits.length > 0) {
+    } else if (similarity >= 30) {
       recGrade = "half";
     }
 
-    // 7. 生成富有建设性的分析反馈 HTML
     let feedbackContent = "";
     if (hits.length > 0) {
-      feedbackContent += `<div style="font-size:12.5px; color:var(--good-text); margin-top:4px;">🎯 核心考点命中: <b>${hits.join(", ")}</b> ✅ ${hitNotes.length ? `<span style="font-weight:normal; color:var(--ink-2);">(${hitNotes.join("; ")})</span>` : ""}</div>`;
+      feedbackContent += `<div style="font-size:12.5px; color:var(--good-text); margin-top:4px;">🎯 核心固定搭配/动词短语命中: <b>${hits.join(", ")}</b> ✅</div>`;
     }
     if (misses.length > 0) {
-      feedbackContent += `<div style="font-size:12.5px; color:var(--serious); margin-top:4px;">💡 建议包含的核心表达: <b>${misses.join(", ")}</b></div>`;
-    }
-    if (synonymNotes.length > 0) {
-      feedbackContent += `<div style="font-size:12px; color:var(--ink-2); margin-top:6px; background:var(--accent-wash); padding:6px 10px; border-radius:6px;">
-        💡 <b>表达解析与润色提示</b>：<br>
-        ${synonymNotes.map(sn => `• ${sn}`).join("<br>")}
-      </div>`;
+      feedbackContent += `<div style="font-size:12.5px; color:var(--serious); margin-top:4px;">💡 建议使用的核心表达: <b>${misses.join(", ")}</b></div>`;
     }
 
-    const gradeLabel = recGrade === "ok" ? "✅ 推荐评价：全对 (表达地道且意图准确)" : recGrade === "half" ? "⚠️ 推荐评价：半对 (注意细节)" : "❌ 推荐评价：有错";
+    feedbackContent += `<div style="font-size:11.5px; color:var(--muted); margin-top:6px; border-top:1px dashed var(--grid); padding-top:4px;">
+      💬 提示：网页端仅对核心固定搭配进行检测。做完推送报告后，Claude 会为你做更细致的语法与地道度点评！
+    </div>`;
+
+    const gradeLabel = recGrade === "ok" ? "✅ 推荐评价：全对 (核心搭配正确)" : recGrade === "half" ? "⚠️ 推荐评价：半对" : "❌ 推荐评价：有错";
     const gradeColor = recGrade === "ok" ? "var(--good-text)" : recGrade === "half" ? "var(--warn)" : "var(--serious)";
 
     const feedbackHtml = `
       <div style="background:var(--page); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin-top:10px;">
         <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; font-weight:600;">
-          <span>🤖 智能对比分析</span>
-          <span style="color:${gradeColor};">${gradeLabel} (匹配度 ${similarity}%)</span>
+          <span>🤖 核心搭配检测</span>
+          <span style="color:${gradeColor};">${gradeLabel}</span>
         </div>
         ${feedbackContent}
       </div>`;
