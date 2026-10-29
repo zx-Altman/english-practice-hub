@@ -268,7 +268,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-10-29-clean"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-10-29-tense"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -656,7 +656,21 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
       });
     }
 
-    // 2. 智能模糊匹配（容忍插入修饰词如 my daily diet）
+    // 2. 智能模糊与时态匹配（容忍 Past Tense 时态如 took / went / made / ran）
+    const verbForms = {
+      take: ["took", "taken", "taking", "takes"],
+      make: ["made", "making", "makes"],
+      go: ["went", "gone", "going", "goes"],
+      run: ["ran", "running", "runs"],
+      build: ["built", "building", "builds"],
+      have: ["had", "has", "having"],
+      give: ["gave", "given", "giving"],
+      recharge: ["recharged", "recharging"],
+      heal: ["healed", "healing"],
+      wrap: ["wrapped", "wrapping"],
+      work: ["worked", "working", "works"]
+    };
+
     const hits = [];
     const misses = [];
     const hitNotes = [];
@@ -669,10 +683,22 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
         const coreAnchors = tp.split(" ").filter(w => !["my", "a", "the", "some", "your", "of"].includes(w) && w.length > 1);
         let lastIdx = -1;
         let isFuzzyHit = coreAnchors.length > 0;
+
         coreAnchors.forEach(word => {
-          const idx = normUser.indexOf(word, lastIdx + 1);
-          if (idx !== -1) {
-            lastIdx = idx;
+          // 允许动词原形及其时态变体（如 take -> took）
+          const allowedVariants = [word].concat(verbForms[word] || []);
+          let foundIdx = -1;
+
+          for (const variant of allowedVariants) {
+            const idx = normUser.indexOf(variant, lastIdx + 1);
+            if (idx !== -1) {
+              foundIdx = idx;
+              break;
+            }
+          }
+
+          if (foundIdx !== -1) {
+            lastIdx = foundIdx;
           } else {
             isFuzzyHit = false;
           }
@@ -680,7 +706,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
 
         if (isFuzzyHit && coreAnchors.length >= 2) {
           hits.push(tp);
-          hitNotes.push(`已识别你的扩展/修饰变体表达（如加入 daily / 插入词汇）`);
+          hitNotes.push(`已识别你的时态/变体表达（如 take ➔ took）`);
         } else {
           misses.push(tp);
         }
