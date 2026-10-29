@@ -56,22 +56,6 @@ const PRACTICE_DATA = {
           notes: ["wrap up（收尾/总结，不说 stop practice）"] }
       ]
     },
-          a: "You look exhausted tonight. Just take it easy, have a shower, and get a good night's sleep.",
-          notes: ["take it easy（放轻松）", "a full night's sleep / get a good night's sleep"] },
-        { q: "用 <b>work out</b> 造句：打篮球比去健身房更能锻炼我的腿部力量。",
-          a: "Playing basketball works out my legs even more than going to the gym does.",
-          notes: ["works out my legs（锻炼部位用 work out + 部位）"] },
-        { q: "用 <b>sore throat</b> 造句：你应该多喝点水——嗓子疼可不会自己痊愈。",
-          a: "You should drink some water — that sore throat won't heal by itself.",
-          notes: ["a sore throat（嗓子疼）", "heal by itself（自行痊愈）"] },
-        { q: "用 <b>recharge</b> 造句：打羽毛球、看书和朋友聊天，总能让我重新充满电。",
-          a: "Playing badminton, reading, and chatting with friends can always recharge my batteries.",
-          notes: ["recharge my batteries / recharge me（充沛精力）"] },
-        { q: "用 <b>wrap up</b> 造句：时间不早了，我们今天就练到这里并总结一下吧。",
-          a: "It's getting late, so let me wrap up our practice for today.",
-          notes: ["wrap up（收尾/总结，不说 stop practice）"] }
-      ]
-    },
     {
       date: "2026-10-26", weekday: "周一", type: "中译英",
       items: [
