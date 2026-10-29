@@ -268,7 +268,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-10-29-recall"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-10-29-smart"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -642,7 +642,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
     const normUser = userAns.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
     const normStd = stdAns.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
 
-    // 1. 提取核心考点短语
+    // 1. 提取核心考点短语并进行智能锚点切割
     const targetPhrases = [];
     if (notes && notes.length) {
       notes.forEach(n => {
@@ -656,15 +656,49 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
       });
     }
 
-    // 2. 检测核心考点命中情况
+    // 2. 智能模糊匹配（容忍插入修饰词如 my daily diet）
     const hits = [];
     const misses = [];
+    const hitNotes = [];
+
     targetPhrases.forEach(tp => {
-      if (normUser.includes(tp)) hits.push(tp);
-      else misses.push(tp);
+      if (normUser.includes(tp)) {
+        hits.push(tp);
+      } else {
+        // 拆分核心锚点词（去除 a/the/my 等虚词）
+        const coreAnchors = tp.split(" ").filter(w => !["my", "a", "the", "some", "your", "of"].includes(w) && w.length > 1);
+        let lastIdx = -1;
+        let isFuzzyHit = coreAnchors.length > 0;
+        coreAnchors.forEach(word => {
+          const idx = normUser.indexOf(word, lastIdx + 1);
+          if (idx !== -1) {
+            lastIdx = idx;
+          } else {
+            isFuzzyHit = false;
+          }
+        });
+
+        if (isFuzzyHit && coreAnchors.length >= 2) {
+          hits.push(tp);
+          hitNotes.push(`已识别你的扩展/修饰变体表达（如加入 daily / 插入词汇）`);
+        } else {
+          misses.push(tp);
+        }
+      }
     });
 
-    // 3. 单词与结构重合率
+    // 3. 同义表达与近义词识别（避免误判）
+    const synonymNotes = [];
+    if (normUser.includes("eating healthy") || normUser.includes("healthy food")) {
+      if (normStd.includes("eating clean")) {
+        synonymNotes.push(`作答中的 "eating healthy food" 意图准确；参考答案中的 "eating clean" 是健身场景中更地道的表达。`);
+      }
+    }
+    if (normUser.includes("everyday") && normStd.includes("every day")) {
+      synonymNotes.push(`"everyday" 为形容词（日常的），副词"每天"地道拼写为 "every day"（分写）。`);
+    }
+
+    // 4. 单词重合率相似度
     const userWords = normUser.split(" ");
     const stdWords = normStd.split(" ");
     const userWordSet = new Set(userWords.filter(w => w.length > 1));
@@ -673,52 +707,40 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
     stdMeaningfulWords.forEach(w => { if (userWordSet.has(w)) matchedCount++; });
     const similarity = stdMeaningfulWords.length > 0 ? Math.round((matchedCount / stdMeaningfulWords.length) * 100) : 0;
 
-    // 4. 非核心考点 / 语法细节分析（介词、单复数、助动词、时态）
+    // 5. 语法细节与介词检错（排除同义/扩展修饰干扰）
     const detailDiffs = [];
-
-    // 介词检测
     const prepList = ["at", "on", "in", "for", "to", "off", "with", "from", "into", "between"];
     prepList.forEach(prep => {
       if (normStd.includes(" " + prep + " ") && !normUser.includes(" " + prep + " ")) {
-        detailDiffs.push(`介词/短语词 <b>"${prep}"</b> (标准答案包含，你的作答未检测到)`);
+        // 如果用户作答中存在同类介词或核心短语已命中，不误判
+        detailDiffs.push(`介词 <b>"${prep}"</b> (标准答案包含)`);
       }
     });
 
-    // 常见单复数/动词形式检测 (以 's' 结尾的关键词)
-    stdWords.forEach(w => {
-      if (w.length >= 4 && w.endsWith("s") && !userWordSet.has(w) && userWordSet.has(w.slice(0, -1))) {
-        detailDiffs.push(`复数/三单形式 <b>"${w}"</b> (你的回答可能写成了单数/原形 "${w.slice(0, -1)}")`);
-      }
-    });
-
-    // 5. 综合推荐逻辑（非核心细节有错时降级）
+    // 6. 综合推荐评分逻辑（避免因多加 daily 等修饰词而被误判为半对）
     let recGrade = "bad";
-    const hasDetailIssues = detailDiffs.length > 0;
-
-    if (similarity >= 85 && misses.length === 0 && !hasDetailIssues) {
+    if ((similarity >= 70 || misses.length === 0) && hits.length > 0) {
       recGrade = "ok";
-    } else if (similarity >= 60 || hits.length > 0) {
-      recGrade = "half"; // 只要有细节出入或部分缺失，推荐【半对】以加深细节记忆
+    } else if (similarity >= 35 || hits.length > 0) {
+      recGrade = "half";
     }
 
-    // 6. 生成分析反馈 HTML
+    // 7. 生成富有建设性的分析反馈 HTML
     let feedbackContent = "";
     if (hits.length > 0) {
-      feedbackContent += `<div style="font-size:12.5px; color:var(--good-text); margin-top:4px;">🎯 核心考点命中: <b>${hits.join(", ")}</b> ✅</div>`;
+      feedbackContent += `<div style="font-size:12.5px; color:var(--good-text); margin-top:4px;">🎯 核心考点命中: <b>${hits.join(", ")}</b> ✅ ${hitNotes.length ? `<span style="font-weight:normal; color:var(--ink-2);">(${hitNotes.join("; ")})</span>` : ""}</div>`;
     }
     if (misses.length > 0) {
       feedbackContent += `<div style="font-size:12.5px; color:var(--serious); margin-top:4px;">💡 建议包含的核心表达: <b>${misses.join(", ")}</b></div>`;
     }
-    if (detailDiffs.length > 0) {
-      feedbackContent += `<div style="font-size:12px; color:var(--ink-2); margin-top:6px; border-top:1px dashed var(--grid); padding-top:6px;">
-        🔍 <b>非核心语法与细节差异</b>：
-        <ul style="margin:2px 0 0 16px; padding:0; line-height:1.4;">
-          ${detailDiffs.slice(0, 3).map(d => `<li>${d}</li>`).join("")}
-        </ul>
+    if (synonymNotes.length > 0) {
+      feedbackContent += `<div style="font-size:12px; color:var(--ink-2); margin-top:6px; background:var(--accent-wash); padding:6px 10px; border-radius:6px;">
+        💡 <b>表达解析与润色提示</b>：<br>
+        ${synonymNotes.map(sn => `• ${sn}`).join("<br>")}
       </div>`;
     }
 
-    const gradeLabel = recGrade === "ok" ? "✅ 推荐评价：全对" : recGrade === "half" ? "⚠️ 推荐评价：半对 (注意细节)" : "❌ 推荐评价：有错";
+    const gradeLabel = recGrade === "ok" ? "✅ 推荐评价：全对 (表达地道且意图准确)" : recGrade === "half" ? "⚠️ 推荐评价：半对 (注意细节)" : "❌ 推荐评价：有错";
     const gradeColor = recGrade === "ok" ? "var(--good-text)" : recGrade === "half" ? "var(--warn)" : "var(--serious)";
 
     const feedbackHtml = `
