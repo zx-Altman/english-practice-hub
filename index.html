@@ -210,6 +210,18 @@
   }
   .empty { text-align: center; padding: 40px 20px; color: var(--muted); }
   .empty .btn { margin-top: 14px; }
+
+  /* Modal overlay & card */
+  .modal-overlay {
+    position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.55); backdrop-filter: blur(2px);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 1000; padding: 20px;
+  }
+  .modal-card {
+    background: var(--surface-1); border: 1px solid var(--border); border-radius: 12px;
+    max-width: 440px; width: 100%; padding: 22px; box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+  }
   @media (max-width: 560px) { .note-item { grid-template-columns: 1fr; gap: 2px; } }
 </style>
 </head>
@@ -241,7 +253,22 @@
 
 <div id="tooltip"></div>
 
-<script src="data.js?v=2026-10-28-pwa"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<div id="tokenModal" class="modal-overlay" style="display:none;">
+  <div class="modal-card">
+    <div style="font-weight:650; font-size:16px; margin-bottom:8px;">⚙️ 配置 GitHub 自动推送</div>
+    <div style="font-size:13px; color:var(--ink-2); line-height:1.5; margin-bottom:12px;">
+      输入你的 GitHub Personal Access Token (PAT，仅勾选 <b>issues:write</b> 权限)。<br>
+      设置后，每次练习完成即可自动将答题记录与自评推送至仓库 Issues 留存，方便随时查看与分析！
+    </div>
+    <input type="password" id="ghTokenInput" placeholder="粘贴 ghp_ 开头的 Token" style="width:100%; padding:9px 12px; border:1px solid var(--border); border-radius:8px; font-family:monospace; margin-bottom:12px; background:var(--surface-1); color:var(--ink);">
+    <div style="display:flex; gap:8px; justify-content:flex-end;">
+      <button class="btn ghost" id="closeTokenModal">取消</button>
+      <button class="btn" id="saveTokenBtn">保存并立即推送</button>
+    </div>
+  </div>
+</div>
+
+<script src="data.js?v=2026-10-29-opt"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -295,8 +322,148 @@
   if (packIdx < 0) packIdx = packs.length - 1; // 无今日题包 → 显示最近一期
   let qi = 0, revealed = false;
 
+  // 额外练习模式状态
+  let extraMode = false;
+  let extraItems = [];
+  let extraQi = 0;
+  let extraGrades = [];
+  let extraAnswers = [];
+  let extraRevealed = false;
+
+  function initExtraMode() {
+    extraMode = true;
+    extraQi = 0;
+    extraGrades = [];
+    extraAnswers = [];
+    extraRevealed = false;
+    const pool = [];
+    (D.errorBank || []).filter(e => e.status !== "graduated").forEach(e => {
+      pool.push({
+        type: "错题强化",
+        q: `<b>【错题强化】</b> 改错或地道表达翻译：<br>❌ 错误/不地道：<span style="color:var(--serious)">${e.wrong}</span>`,
+        a: `⭐ 地道表达：${e.right}`,
+        notes: [e.note]
+      });
+    });
+    (D.notes || []).forEach(group => {
+      group.items.forEach(it => {
+        pool.push({
+          type: "场景地道表达",
+          q: `<b>【场景表达】</b> (${group.scene})<br>中文意图：${it.zh}`,
+          a: `⭐ 地道表达：${it.en}`,
+          notes: [group.scene]
+        });
+      });
+    });
+    pool.sort(() => Math.random() - 0.5);
+    extraItems = pool.slice(0, 5);
+  }
+
+  function copyReport(p, rec) {
+    const ok = rec.grades.filter(g => g === "ok").length;
+    const half = rec.grades.filter(g => g === "half").length;
+    const bad = rec.grades.filter(g => g === "bad").length;
+    const md = `## 📝 英语练习打卡记录 · ${p.date} (${p.weekday})
+- **练习类型**: ${p.type}
+- **完成题数**: ${p.items.length} 题
+- **成绩统计**: 全对 ${ok} | 半对 ${half} | 有错 ${bad}
+
+${p.items.map((it, i) => `#### 第 ${i + 1} 题 · ${rec.grades[i] === 'ok' ? '✅ 全对' : rec.grades[i] === 'half' ? '⚠️ 半对' : '❌ 有错'}
+- **题目**: ${it.q.replace(/<[^>]+>/g, '')}
+- **我的作答**: ${rec.answers[i] || '（未输入）'}
+- **参考答案**: ${it.a}
+${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).join('\n\n')}`;
+
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(md).then(() => {
+        alert("✅ 练习报告已成功复制到剪贴板！可以直接粘贴发给 Claude。");
+      });
+    } else {
+      const ta = document.createElement("textarea");
+      ta.value = md; document.body.appendChild(ta); ta.select();
+      document.execCommand("copy"); document.body.removeChild(ta);
+      alert("✅ 练习报告已成功复制！");
+    }
+  }
+
+  async function syncToGitHub(p, rec) {
+    let token = localStorage.getItem("ep_github_token");
+    if (!token) {
+      $("#tokenModal").style.display = "flex";
+      $("#ghTokenInput").focus();
+      return;
+    }
+    const statusEl = $("#syncStatus");
+    if (statusEl) statusEl.textContent = "⏳ 正在推送至 GitHub Issues...";
+
+    const ok = rec.grades.filter(g => g === "ok").length;
+    const half = rec.grades.filter(g => g === "half").length;
+    const bad = rec.grades.filter(g => g === "bad").length;
+
+    const markdownBody = `## 📝 英语练习打卡记录 · ${p.date} (${p.weekday})
+
+- **练习类型**: ${p.type}
+- **完成题数**: ${p.items.length} 题
+- **成绩统计**: 全对 ${ok} | 半对 ${half} | 有错 ${bad}
+- **提交时间**: ${new Date().toLocaleString('zh-CN')}
+
+---
+
+### 答题与总结详情
+
+${p.items.map((it, i) => `#### 第 ${i + 1} 题 · ${rec.grades[i] === 'ok' ? '✅ 全对' : rec.grades[i] === 'half' ? '⚠️ 半对' : '❌ 有错'}
+- **题目**: ${it.q.replace(/<[^>]+>/g, '')}
+- **我的作答**: ${rec.answers[i] || '（未输入）'}
+- **参考答案**: ${it.a}
+${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).join('\n\n')}`;
+
+    try {
+      const res = await fetch("https://api.github.com/repos/zx-Altman/english-practice-hub/issues", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token.trim()}`,
+          "Accept": "application/vnd.github.v3+json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          title: `[练习打卡] ${p.date} (${p.weekday}) · ${p.type} · ${ok}/${p.items.length} ✅`,
+          body: markdownBody,
+          labels: ["practice-log"]
+        })
+      });
+      if (res.ok) {
+        const issueData = await res.json();
+        if (statusEl) {
+          statusEl.innerHTML = `✅ 已自动推送至 <a href="${issueData.html_url}" target="_blank" style="color:var(--series); font-weight:600; text-decoration:underline;">GitHub Issue #${issueData.number}</a>！`;
+        }
+      } else {
+        const errJson = await res.json().catch(() => ({}));
+        if (statusEl) statusEl.textContent = `❌ 推送失败: ${errJson.message || res.statusText}（请检查 Token 权限）`;
+        localStorage.removeItem("ep_github_token");
+      }
+    } catch (err) {
+      if (statusEl) statusEl.textContent = `❌ 网络异常: ${err.message}`;
+    }
+  }
+
+  // Token Modal 事件绑定
+  $("#closeTokenModal").onclick = () => { $("#tokenModal").style.display = "none"; };
+  $("#saveTokenBtn").onclick = () => {
+    const val = $("#ghTokenInput").value.trim();
+    if (!val) { alert("请输入有效的 GitHub Token"); return; }
+    localStorage.setItem("ep_github_token", val);
+    $("#tokenModal").style.display = "none";
+    if (packs[packIdx] && progress[packs[packIdx].date]) {
+      syncToGitHub(packs[packIdx], progress[packs[packIdx].date]);
+    }
+  };
+
   function renderToday() {
     const el = $("#tab-today");
+    if (extraMode) {
+      renderExtraPractice(el);
+      return;
+    }
     if (!packs.length) {
       el.innerHTML = '<div class="card empty">还没有题包。<br>和 Claude 练习后，题包会自动出现在这里。</div>';
       return;
@@ -327,7 +494,13 @@
               <span><i class="grade-dot" style="background:var(--warn)"></i>半对 <b>${half}</b></span>
               <span><i class="grade-dot" style="background:var(--serious)"></i>有错 <b>${bad}</b></span>
             </div>
-            <button class="btn ghost" id="redo">重做一遍</button>
+            <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:14px 0 6px;">
+              <button class="btn" id="pushGithubBtn">🚀 推送记录至 GitHub</button>
+              <button class="btn ghost" id="copyReportBtn">📋 复制练习报告</button>
+              <button class="btn ghost" id="extraPracticeBtn">🔥 开启额外强化练习</button>
+              <button class="btn ghost" id="redo">重做一遍</button>
+            </div>
+            <div id="syncStatus" style="font-size:13px; color:var(--series); margin-top:4px;"></div>
           </div>
           <div id="reviewList"></div>
         </div>`;
@@ -343,6 +516,9 @@
           ${it.notes && it.notes.length ? "<ul>" + it.notes.map(n => `<li>${n}</li>`).join("") + "</ul>" : ""}`;
         rl.appendChild(box);
       });
+      $("#pushGithubBtn").onclick = () => syncToGitHub(p, rec);
+      $("#copyReportBtn").onclick = () => copyReport(p, rec);
+      $("#extraPracticeBtn").onclick = () => { initExtraMode(); renderToday(); };
       $("#redo").onclick = () => { delete progress[p.date]; store.set("ep_progress", progress); qi = 0; revealed = false; renderToday(); };
       $("#navPrev").onclick = () => { if (packIdx > 0) { packIdx--; revealed = false; renderToday(); } };
       $("#navNext").onclick = () => { if (packIdx < packs.length - 1) { packIdx++; revealed = false; renderToday(); } };
@@ -382,6 +558,71 @@
       $("#revealBtn").onclick = () => { revealed = true; renderAnswer(p, it, qi); };
       if (revealed) renderAnswer(p, it, qi);
     }
+  }
+
+  function renderExtraPractice(el) {
+    if (extraQi >= extraItems.length) {
+      const ok = extraGrades.filter(g => g === "ok").length;
+      el.innerHTML = `
+        <div class="card">
+          <div class="done-summary">
+            <div class="muted">🔥 额外强化练习完成！</div>
+            <div class="big en">${ok} / ${extraItems.length} 全对</div>
+            <div style="display:flex; gap:10px; justify-content:center; margin-top:16px;">
+              <button class="btn" id="anotherExtraBtn">🔥 再练 5 题</button>
+              <button class="btn ghost" id="exitExtraBtn">⬅️ 返回今日练习</button>
+            </div>
+          </div>
+        </div>`;
+      $("#anotherExtraBtn").onclick = () => { initExtraMode(); renderToday(); };
+      $("#exitExtraBtn").onclick = () => { extraMode = false; renderToday(); };
+      return;
+    }
+
+    const it = extraItems[extraQi];
+    el.innerHTML = `
+      <div class="card">
+        <div class="pack-head">
+          <div class="pack-title">🔥 额外强化练习 <span class="type-badge">${it.type}</span></div>
+          <button class="btn ghost" id="exitExtraTop" style="padding:4px 10px; font-size:12px;">退出强化</button>
+        </div>
+        <div class="q-progress">
+          第 ${extraQi + 1} / ${extraItems.length} 题
+          <div class="bar"><i style="width:${extraQi / extraItems.length * 100}%"></i></div>
+        </div>
+        <div class="prompt">${it.q}</div>
+        <textarea id="extraAnsBox" placeholder="写下你的答案...">${extraAnswers[extraQi] || ""}</textarea>
+        <div style="margin-top:12px">
+          <button class="btn" id="extraRevealBtn">查看答案</button>
+        </div>
+        <div id="extraAnswerZone"></div>
+      </div>`;
+
+    $("#exitExtraTop").onclick = () => { extraMode = false; renderToday(); };
+    $("#extraAnsBox").oninput = e => { extraAnswers[extraQi] = e.target.value; };
+    $("#extraRevealBtn").onclick = () => {
+      extraRevealed = true;
+      const zone = $("#extraAnswerZone");
+      zone.innerHTML = `
+        <div class="answer">
+          <div class="a-label">参考答案</div>
+          <div class="a-text">${it.a}</div>
+          ${it.notes && it.notes.length ? "<ul>" + it.notes.map(n => `<li>${n}</li>`).join("") + "</ul>" : ""}
+          <div class="grade-row">
+            <button class="grade-btn" data-g="ok">✅ 全对</button>
+            <button class="grade-btn" data-g="half">⚠️ 半对</button>
+            <button class="grade-btn" data-g="bad">❌ 有错</button>
+          </div>
+        </div>`;
+      $$(".grade-btn", zone).forEach(btn => {
+        btn.onclick = () => {
+          extraGrades[extraQi] = btn.dataset.g;
+          extraQi++;
+          extraRevealed = false;
+          renderToday();
+        };
+      });
+    };
   }
 
   function renderAnswer(p, it, i) {
