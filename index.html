@@ -268,7 +268,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-10-29-opt"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-10-29-ai"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -603,16 +603,21 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
     $("#extraRevealBtn").onclick = () => {
       extraRevealed = true;
       const zone = $("#extraAnswerZone");
+      const uAns = extraAnswers[extraQi] || "";
+      const analysis = analyzeAnswer(uAns, it.a, it.notes);
+      if (!extraGrades[extraQi]) extraGrades[extraQi] = analysis.recommend;
+
       zone.innerHTML = `
         <div class="answer">
           <div class="a-label">参考答案</div>
           <div class="a-text">${it.a}</div>
           ${it.notes && it.notes.length ? "<ul>" + it.notes.map(n => `<li>${n}</li>`).join("") + "</ul>" : ""}
-          <div class="grade-row">
-            <button class="grade-btn" data-g="ok">✅ 全对</button>
-            <button class="grade-btn" data-g="half">⚠️ 半对</button>
-            <button class="grade-btn" data-g="bad">❌ 有错</button>
-          </div>
+          ${analysis.feedbackHtml}
+        </div>
+        <div class="grade-row">
+          <button class="grade-btn ${extraGrades[extraQi] === "ok" ? "picked" : ""}" data-g="ok">✅ 全对</button>
+          <button class="grade-btn ${extraGrades[extraQi] === "half" ? "picked" : ""}" data-g="half">⚠️ 半对</button>
+          <button class="grade-btn ${extraGrades[extraQi] === "bad" ? "picked" : ""}" data-g="bad">❌ 有错</button>
         </div>`;
       $$(".grade-btn", zone).forEach(btn => {
         btn.onclick = () => {
@@ -625,38 +630,121 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
     };
   }
 
+  function analyzeAnswer(userAns, stdAns, notes) {
+    if (!userAns || !userAns.trim()) {
+      return {
+        recommend: "bad",
+        matchPercent: 0,
+        feedbackHtml: '<div style="font-size:12.5px; color:var(--serious); margin-top:8px;">⚠️ 未填写作答，建议对照参考答案复习。</div>'
+      };
+    }
+
+    const normUser = userAns.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+    const normStd = stdAns.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+
+    // 1. 提取要点关键词
+    const targetPhrases = [];
+    if (notes && notes.length) {
+      notes.forEach(n => {
+        const match = n.match(/([a-zA-Z\s'\-]{3,})/);
+        if (match && match[1]) {
+          const p = match[1].trim().toLowerCase();
+          if (p.length >= 3 && !["and", "the", "for", "you", "not", "with", "this"].includes(p)) {
+            targetPhrases.push(p);
+          }
+        }
+      });
+    }
+
+    // 2. 检测命中情况
+    const hits = [];
+    const misses = [];
+    targetPhrases.forEach(tp => {
+      if (normUser.includes(tp)) hits.push(tp);
+      else misses.push(tp);
+    });
+
+    // 3. 单词重合率相似度
+    const userWords = new Set(normUser.split(" ").filter(w => w.length > 2));
+    const stdWords = normStd.split(" ").filter(w => w.length > 2);
+    let matchedCount = 0;
+    stdWords.forEach(w => { if (userWords.has(w)) matchedCount++; });
+    const similarity = stdWords.length > 0 ? Math.round((matchedCount / stdWords.length) * 100) : 0;
+
+    // 4. 推荐评分逻辑
+    let recGrade = "bad";
+    if (similarity >= 70 || (hits.length > 0 && misses.length === 0 && similarity >= 45)) {
+      recGrade = "ok";
+    } else if (similarity >= 30 || hits.length > 0) {
+      recGrade = "half";
+    }
+
+    // 5. 生成高亮反馈 HTML
+    let hitsHtml = "";
+    if (hits.length > 0) {
+      hitsHtml += `<div style="font-size:12.5px; color:var(--good-text); margin-top:4px;">🎯 核心考点命中: <b>${hits.join(", ")}</b> ✅</div>`;
+    }
+    if (misses.length > 0) {
+      hitsHtml += `<div style="font-size:12.5px; color:var(--serious); margin-top:4px;">💡 建议包含的核心短语: <b>${misses.join(", ")}</b></div>`;
+    }
+
+    const gradeLabel = recGrade === "ok" ? "✅ 推荐评价：全对" : recGrade === "half" ? "⚠️ 推荐评价：半对" : "❌ 推荐评价：有错";
+    const gradeColor = recGrade === "ok" ? "var(--good-text)" : recGrade === "half" ? "var(--warn)" : "var(--serious)";
+
+    const feedbackHtml = `
+      <div style="background:var(--page); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin-top:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; font-weight:600;">
+          <span>🤖 智能对比分析</span>
+          <span style="color:${gradeColor};">${gradeLabel} (相似度 ${similarity}%)</span>
+        </div>
+        ${hitsHtml}
+      </div>`;
+
+    return { recommend: recGrade, matchPercent: similarity, feedbackHtml };
+  }
+
   function renderAnswer(p, it, i) {
     const zone = $("#answerZone"); if (!zone) return;
     const rec = progress[p.date] || { answers: [], grades: [] };
+    const userAns = (rec.answers || [])[i] || "";
+    const analysis = analyzeAnswer(userAns, it.a, it.notes);
+
+    // 如果未选评价，默认应用推荐评价
+    if (!rec.grades[i]) {
+      progress[p.date] = progress[p.date] || { answers: [], grades: [] };
+      progress[p.date].grades[i] = analysis.recommend;
+      bumpActivity();
+      store.set("ep_progress", progress);
+    }
+    const currentGrade = progress[p.date].grades[i];
+
     zone.innerHTML = `
       <div class="answer">
         <div class="a-label">参考答案</div>
         <div class="a-text">${it.a}</div>
         ${it.notes && it.notes.length ? "<ul>" + it.notes.map(n => `<li>${n}</li>`).join("") + "</ul>" : ""}
+        ${analysis.feedbackHtml}
       </div>
       <div class="grade-row">
-        <button class="grade-btn ${rec.grades[i] === "ok" ? "picked" : ""}" data-g="ok">✅ 全对</button>
-        <button class="grade-btn ${rec.grades[i] === "half" ? "picked" : ""}" data-g="half">⚠️ 半对</button>
-        <button class="grade-btn ${rec.grades[i] === "bad" ? "picked" : ""}" data-g="bad">❌ 有错</button>
+        <button class="grade-btn ${currentGrade === "ok" ? "picked" : ""}" data-g="ok">✅ 全对</button>
+        <button class="grade-btn ${currentGrade === "half" ? "picked" : ""}" data-g="half">⚠️ 半对</button>
+        <button class="grade-btn ${currentGrade === "bad" ? "picked" : ""}" data-g="bad">❌ 有错</button>
         <button class="btn" id="nextQ" style="margin-left:auto">${i + 1 < p.items.length ? "下一题 →" : "完成本期 🎉"}</button>
       </div>`;
     $$(".grade-btn", zone).forEach(btn => {
       btn.onclick = () => {
         progress[p.date] = progress[p.date] || { answers: [], grades: [] };
-        const prev = progress[p.date].grades[i];
         progress[p.date].grades[i] = btn.dataset.g;
-        if (!prev) bumpActivity();
         store.set("ep_progress", progress);
         $$(".grade-btn", zone).forEach(b => b.classList.toggle("picked", b === btn));
       };
     });
     $("#nextQ").onclick = () => {
-      const g = (progress[p.date] && progress[p.date].grades) ? progress[p.date].grades[i] : null;
-      if (!g) { alert("先给自己打个分：全对 / 半对 / 有错"); return; }
       revealed = false;
       if (i + 1 < p.items.length) { qi = i + 1; renderToday(); }
       else { renderToday(); }
     };
+  }
   }
 
   /* ================= ERRORS ================= */
