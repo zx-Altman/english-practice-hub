@@ -910,6 +910,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
             <label class="recite-item">
               <input type="checkbox" data-key="${key}" ${on ? "checked" : ""}>
               <div class="recite-pair ${on ? "done" : ""}">
+                ${it.zh ? `<div class="zh-hint" style="font-size:13px; font-weight:600; color:var(--series); margin-bottom:4px;">🇨🇳 ${it.zh}</div>` : ""}
                 <div class="wrong">❌ ${it.wrong}</div>
                 <div class="right">⭐ ${it.right}</div>
               </div>

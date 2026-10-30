@@ -268,34 +268,34 @@ const PRACTICE_DATA = {
   // ============ 必背 20 句 ============
   recite: [
     { group: "健身与恢复", items: [
-      { wrong: "I have work overtime", right: "I've been working overtime for several days." },
-      { wrong: "recover the energy", right: "A good night's sleep helps me recharge." },
-      { wrong: "after the whole night sleep", right: "I'll recover after a full night's sleep." },
-      { wrong: "exercise my back", right: "I worked out my shoulders after work." },
-      { wrong: "gives better workout on my legs", right: "Playing basketball gives my legs a better workout than the gym does." }
+      { zh: "我连续加班好几天了。", wrong: "I have work overtime", right: "I've been working overtime for several days." },
+      { zh: "睡个好觉能帮我恢复精力/重新充电。", wrong: "recover the energy", right: "A good night's sleep helps me recharge." },
+      { zh: "充分休息一晚后我就会恢复过来。", wrong: "after the whole night sleep", right: "I'll recover after a full night's sleep." },
+      { zh: "下班后我练了肩。", wrong: "exercise my back", right: "I worked out my shoulders after work." },
+      { zh: "打篮球比去健身房更能锻炼腿部。", wrong: "gives better workout on my legs", right: "Playing basketball gives my legs a better workout than the gym does." }
     ]},
     { group: "交接与便利", items: [
-      { wrong: "I reserve a file", right: "I left the documents at the front desk." },
-      { wrong: "when you are convenient", right: "Pick it up whenever it's convenient for you — no rush." },
-      { wrong: "I ran out my data", right: "I ran out of mobile data during the day." },
-      { wrong: "the time is very intense", right: "I'm short on time today." }
+      { zh: "我把文件暂放在前台了。", wrong: "I reserve a file", right: "I left the documents at the front desk." },
+      { zh: "你方便的时候随时取，不着急。", wrong: "when you are convenient", right: "Pick it up whenever it's convenient for you — no rush." },
+      { zh: "我白天手机流量用光了。", wrong: "I ran out my data", right: "I ran out of mobile data during the day." },
+      { zh: "我今天时间很紧。", wrong: "the time is very intense", right: "I'm short on time today." }
     ]},
     { group: "睡前流程", items: [
-      { wrong: "kept the airconditioning opened", right: "I slept with the AC on last night." },
-      { wrong: "a pain throat", right: "I have a sore throat." },
-      { wrong: "put the crime on my toe", right: "I put some cream on my toe, but it hasn't healed completely yet." },
-      { wrong: "scroll the phone to get relaxed", right: "I scroll on my phone to unwind before bed." },
-      { wrong: "go straightly to sleep", right: "Then I go straight to sleep." }
+      { zh: "昨晚我是开着空调睡觉的。", wrong: "kept the airconditioning opened", right: "I slept with the AC on last night." },
+      { zh: "我嗓子疼。", wrong: "a pain throat", right: "I have a sore throat." },
+      { zh: "我脚趾上涂了药膏，但还没完全好。", wrong: "put the crime on my toe", right: "I put some cream on my toe, but it hasn't healed completely yet." },
+      { zh: "睡前我刷手机解压/放松。", wrong: "scroll the phone to get relaxed", right: "I scroll on my phone to unwind before bed." },
+      { zh: "然后我就直接睡了。", wrong: "go straightly to sleep", right: "Then I go straight to sleep." }
     ]},
     { group: "工作与表态", items: [
-      { wrong: "devote ourselves into", right: "I want to devote myself to this project." },
-      { wrong: "practise 10 minutes english", right: "I can only practice English for 10 minutes today." },
-      { wrong: "I feel fruitful", right: "It's been a really productive evening." },
-      { wrong: "give a video call", right: "I had a video call with my girlfriend tonight." }
+      { zh: "我想全身心投入到这个项目中。", wrong: "devote ourselves into", right: "I want to devote myself to this project." },
+      { zh: "我今天只能练 10 分钟英语。", wrong: "practise 10 minutes english", right: "I can only practice English for 10 minutes today." },
+      { zh: "今晚过得非常充实/有收获。", wrong: "I feel fruitful", right: "It's been a really productive evening." },
+      { zh: "今晚我和女朋友打了视频电话。", wrong: "give a video call", right: "I had a video call with my girlfriend tonight." }
     ]},
     { group: "沟通与练习", items: [
-      { wrong: "check out if I have mistakes", right: "Could you check whether I made any mistakes?" },
-      { wrong: "finish the practice today", right: "Let's wrap up today's practice." }
+      { zh: "你能帮我检查一下有没有犯错吗？", wrong: "check out if I have mistakes", right: "Could you check whether I made any mistakes?" },
+      { zh: "让我们总结结束今天的练习吧。", wrong: "finish the practice today", right: "Let's wrap up today's practice." }
     ]}
   ]
 };
