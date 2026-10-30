@@ -318,8 +318,8 @@
 
   /* ================= TODAY ================= */
   const packs = D.packs.slice().sort((a, b) => a.date < b.date ? -1 : 1);
-  let packIdx = Math.max(0, packs.findIndex(p => p.date === todayStr()));
-  if (packIdx < 0) packIdx = packs.length - 1; // 无今日题包 → 显示最近一期
+  let packIdx = packs.findIndex(p => p.date === todayStr());
+  if (packIdx < 0) packIdx = packs.length - 1; // 无今日题包 → 默认显示最新一期
   let qi = 0, revealed = false;
 
   // 额外练习模式状态

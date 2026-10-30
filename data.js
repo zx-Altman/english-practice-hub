@@ -2,10 +2,39 @@
 // 修改这里，网站刷新即可看到最新内容
 const PRACTICE_DATA = {
 
-  updatedAt: "2026-10-29",
+  updatedAt: "2026-10-30",
 
   // ============ 每日题包（按日期） ============
   packs: [
+    {
+      date: "2026-10-30", weekday: "周五", type: "综合回忆",
+      items: [
+        { q: "回忆造句：打篮球比去健身房更能锻炼我的腿部力量。",
+          a: "Playing basketball gives my legs a better workout than going to the gym does.",
+          notes: ["gives my legs a better workout（给某部位更好的锻炼：give ... a workout）"] },
+        { q: "回忆造句：打羽毛球、看书和朋友聊天，总能让我重新充满电。",
+          a: "Playing badminton, reading, and chatting with friends can always recharge my batteries.",
+          notes: ["recharge my batteries / recharge me（充沛精力）"] },
+        { q: "回忆造句：在完成这个大项目后，我想把更多精力投入到我自己的生活中。",
+          a: "After wrapping up this big project, I want to devote more energy to my own life.",
+          notes: ["devote energy to my own life（投入精力用 devote ... to）", "wrap up（完成/收尾）"] },
+        { q: "回忆造句：我休了五天假没去健身房，但研究表明我不会掉力量。",
+          a: "I took five days off from the gym, but studies show I won't lose strength.",
+          notes: ["take five days off（休假/暂停锻炼）", "studies show（研究表明）"] },
+        { q: "回忆造句：表哥下个月结婚，我一定要去参加婚礼，和家人一起创造美好的回忆。",
+          a: "My cousin is getting married next month, and I'm going to attend the wedding and make some great memories with my family.",
+          notes: ["attend a wedding（参加婚礼）", "make memories（创造回忆）"] },
+        { q: "回忆造句：我们这个月时间很紧，所以无法接额外的任务。",
+          a: "We are short on time this month, so we can't take on extra tasks.",
+          notes: ["short on time（时间紧）", "take on extra tasks（接新任务）"] },
+        { q: "回忆造句：在回家路上我想看视频，但我的手机流量用光了。",
+          a: "I wanted to watch videos on my way home, but I ran out of mobile data.",
+          notes: ["run out of mobile data（手机流量用光）"] },
+        { q: "回忆造句：我平时饮食很规律，但周末喜欢放纵吃一顿解解压。",
+          a: "I usually eat clean, but I like to have a cheat meal on weekends to unwind.",
+          notes: ["have a cheat meal（吃放纵餐）", "unwind（解压/放松）"] }
+      ]
+    },
     {
       date: "2026-10-29", weekday: "周四", type: "句型造句",
       items: [
