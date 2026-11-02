@@ -2,10 +2,39 @@
 // 修改这里，网站刷新即可看到最新内容
 const PRACTICE_DATA = {
 
-  updatedAt: "2026-10-30",
+  updatedAt: "2026-11-02",
 
   // ============ 每日题包（按日期） ============
   packs: [
+    {
+      date: "2026-11-02", weekday: "周一", type: "中译英",
+      items: [
+        { q: "听说你最好的朋友上个月结婚了，恭喜他！",
+          a: "I heard your best friend got married last month, congratulations to him!",
+          notes: ["get married（结婚；及物动词 marry 需接宾语，不带宾语时用 get married）"] },
+        { q: "你今天看起来有点累，是不是昨晚没睡好？",
+          a: "You look a little tired today — did you not sleep well last night?",
+          notes: ["look + 形容词（直接加形容词 tired，不能加 like）"] },
+        { q: "老板问我能不能接这个新项目，但我们团队目前时间很紧。",
+          a: "My boss asked if we could take on this new project, but our team is short on time right now.",
+          notes: ["take on a new project（承担/接新项目）", "short on time（时间紧）"] },
+        { q: "周末去海边踏青让我重新充满了电，现在感觉精力充沛。",
+          a: "A trip to the beach over the weekend helped me recharge my batteries, and now I feel full of energy.",
+          notes: ["recharge my batteries / recharge me（重新充满电，全新海边场景）"] },
+        { q: "游泳比跑步更能锻炼我的全身肌肉。",
+          a: "Swimming gives my whole body a better workout than running does.",
+          notes: ["gives my whole body a better workout（给某部位更好的锻炼：give ... a workout，全新游泳场景）"] },
+        { q: "在出差期间保持自律并不容易，但我还是尽量坚持吃健康餐。",
+          a: "It's not easy to stay disciplined while on a business trip, but I still try my best to eat clean.",
+          notes: ["stay disciplined（自律的，用形容词 disciplined，不说 discipline）", "on a business trip（出差）", "eat clean（吃健康餐）"] },
+        { q: "我在下班回家的路上打不了电话，因为手机流量用光了。",
+          a: "I couldn't make a call on my way home from work because I ran out of mobile data.",
+          notes: ["on my way home（在回家的路上）", "run out of mobile data（手机流量用光）"] },
+        { q: "高强度训练一周后，我计划周日吃顿放纵餐好好放松解压。",
+          a: "After an intense week of training, I plan to have a cheat meal on Sunday to unwind.",
+          notes: ["have a cheat meal（吃放纵餐）", "unwind（放松解压，不及物动词不用加 myself）"] }
+      ]
+    },
     {
       date: "2026-10-30", weekday: "周五", type: "综合回忆",
       items: [
