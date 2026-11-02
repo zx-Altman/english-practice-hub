@@ -644,6 +644,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
 
     // 动词变体表
     const verbForms = {
+      get: ["got", "gotten", "getting", "gets"],
       take: ["took", "taken", "taking", "takes"],
       make: ["made", "making", "makes"],
       go: ["went", "gone", "going", "goes"],
@@ -693,12 +694,13 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
         let isHit = anchors.length > 0;
         let lastIdx = -1;
 
-        anchors.forEach(word => {
+        anchors.forEach((word, wIdx) => {
           const allowed = [word].concat(verbForms[word] || []);
           let found = false;
           for (const variant of allowed) {
             const idx = normUser.indexOf(variant, lastIdx + 1);
-            if (idx !== -1) {
+            // 多个锚点词必须在相近距离内（20个字符以内），防止跨句子误匹配（如 take ... short on time 中的 on）
+            if (idx !== -1 && (wIdx === 0 || idx - lastIdx <= 20)) {
               found = true;
               lastIdx = idx;
               break;
