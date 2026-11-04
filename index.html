@@ -642,6 +642,30 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
     const normUser = userAns.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
     const normStd = stdAns.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
 
+    // 特殊处理辨析选择题：如果用户直接输入了选项字母（如 A / B / A. / Option A）
+    const userOptionMatch = normUser.match(/^(option\s*)?([ab])\b/i);
+    const stdOptionMatch = normStd.match(/^([ab])\b/i);
+    if (userOptionMatch && stdOptionMatch) {
+      const userChoice = userOptionMatch[2].toUpperCase();
+      const stdChoice = stdOptionMatch[1].toUpperCase();
+      const isCorrect = userChoice === stdChoice;
+      const recGrade = isCorrect ? "ok" : "bad";
+      const gradeColor = isCorrect ? "var(--good-text)" : "var(--serious)";
+      const gradeLabel = isCorrect ? "✅ 推荐评价：全对 (选项选择正确)" : "❌ 推荐评价：有错 (选项选择错误)";
+
+      const feedbackHtml = `
+        <div style="background:var(--page); border:1px solid var(--border); border-radius:8px; padding:8px 12px; margin-top:10px;">
+          <div style="display:flex; justify-content:space-between; align-items:center; font-size:12.5px; font-weight:600;">
+            <span>🤖 辨析选择检测</span>
+            <span style="color:${gradeColor};">${gradeLabel}</span>
+          </div>
+          <div style="font-size:12.5px; color:${gradeColor}; margin-top:4px;">
+            ${isCorrect ? `🎯 选项选择正确：你选择了 <b>${userChoice}</b> ✅` : `💡 你选择了 <b>${userChoice}</b>，正确选项为 <b>${stdChoice}</b>`}
+          </div>
+        </div>`;
+      return { recommend: recGrade, matchPercent: isCorrect ? 100 : 0, feedbackHtml };
+    }
+
     // 动词变体表
     const verbForms = {
       get: ["got", "gotten", "getting", "gets"],
