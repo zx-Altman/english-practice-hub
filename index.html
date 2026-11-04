@@ -659,23 +659,29 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
       devote: ["devoted", "devoting", "devotes"]
     };
 
-    // 核心短语列表（支持斜杠 / 或逗号分割多个同义替代短语，如 "recharge my batteries / recharge me"）
+    // 核心短语列表（支持斜杠 /、分号或逗号分割多个同义替代短语，优先保留长短语）
     const noteTargets = [];
     if (notes && notes.length) {
       notes.forEach(n => {
         const clean = n.replace(/（[^）]*）|\([^\)]*\)/g, "");
-        const parts = clean.split(/[\/,]/);
+        const parts = clean.split(/[\/,;；]/);
         const options = [];
         parts.forEach(part => {
-          const match = part.match(/([a-zA-Z\s'\-]{2,})/);
-          if (match && match[1]) {
-            const p = match[1].trim().toLowerCase();
-            if (p.length >= 2 && !["and", "the", "for", "you", "not", "with", "this"].includes(p)) {
-              options.push(p);
-            }
+          const matches = part.match(/([a-zA-Z\s'\-]{2,})/g);
+          if (matches) {
+            matches.forEach(m => {
+              const p = m.trim().toLowerCase();
+              if (p.length >= 2 && !["and", "the", "for", "you", "not", "with", "this", "or", "is", "are"].includes(p)) {
+                options.push(p);
+              }
+            });
           }
         });
-        if (options.length) noteTargets.push(options);
+        if (options.length) {
+          // 按短语长度降序排列（确保 "get married" 优先于单一单词 "marry" 被捕获）
+          options.sort((a, b) => b.length - a.length);
+          noteTargets.push(options);
+        }
       });
     }
 
