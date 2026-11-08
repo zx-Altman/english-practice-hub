@@ -268,7 +268,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-11-07"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-11-08"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -925,32 +925,95 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
   }
 
   /* ================= RECITE ================= */
+  /* ---------- recite ---------- */
+  let reciteMode = store.get("ep_recite_mode", "today");   // today | all
+  let reciteHideEn = store.get("ep_recite_hide", true);    // 默认隐藏英文，先回忆再核对
+  let reciteRevealed = {};                                  // 单句临时显示英文（刷新即重置）
+
+  // 今日必背：从"未毕业"句池里按日期轮换取 5 句（已脱口而出的不再出现）
+  function todayReciteItems() {
+    const pool = [];
+    (D.recite || []).forEach((g, gi) => g.items.forEach((it, ii) => {
+      if (!reciteDone[gi + "|" + ii]) pool.push({ gi, ii, it, group: g.group });
+    }));
+    if (!pool.length) return [];
+    const dayIdx = Math.floor(Date.now() / 86400000);
+    const start = (dayIdx * 5) % pool.length;
+    return pool.slice(start).concat(pool.slice(0, start)).slice(0, Math.min(5, pool.length));
+  }
+
   function renderRecite() {
     const el = $("#tab-recite");
-    el.innerHTML = `<div class="muted" style="margin-bottom:12px">出声背，带语调。勾选 = 这句已经能脱口而出（真实对话中自然用出 2 次即毕业）。</div>` +
-      D.recite.map((g, gi) => {
-        const done = g.items.filter((_, ii) => reciteDone[gi + "|" + ii]).length;
-        return `
+    const poolCount = (D.recite || []).reduce((n, g, gi) => n + g.items.filter((_, ii) => !reciteDone[gi + "|" + ii]).length, 0);
+    const todayItems = todayReciteItems();
+
+    const itemHtml = entry => {
+      const key = entry.gi + "|" + entry.ii;
+      const on = !!reciteDone[key];
+      const showEn = !reciteHideEn || reciteRevealed[key];
+      return `
+      <label class="recite-item">
+        <input type="checkbox" data-key="${key}" ${on ? "checked" : ""}>
+        <div class="recite-pair ${on ? "done" : ""}">
+          ${entry.it.zh ? `<div class="zh-hint" style="font-size:13px; font-weight:600; color:var(--series); margin-bottom:4px;">🇨🇳 ${entry.it.zh}</div>` : ""}
+          ${showEn
+            ? `<div class="wrong">❌ ${entry.it.wrong}</div><div class="right">⭐ ${entry.it.right}</div>`
+            : `<div class="recite-reveal" data-key="${key}" style="font-size:12.5px; color:var(--muted); border:1px dashed var(--baseline); border-radius:8px; padding:8px 12px; cursor:pointer; margin-top:2px;">👀 先出声背一遍，点我核对英文</div>`}
+        </div>
+      </label>`;
+    };
+
+    let body = "";
+    if (reciteMode === "today") {
+      body = todayItems.length ? `
         <div class="card">
-          <h2 style="margin-bottom:4px">${g.group}</h2>
-          <div class="group-progress en">${done} / ${g.items.length} 已脱口而出</div>
-          <div style="margin-top:8px">
-          ${g.items.map((it, ii) => {
-            const key = gi + "|" + ii;
-            const on = !!reciteDone[key];
-            return `
-            <label class="recite-item">
-              <input type="checkbox" data-key="${key}" ${on ? "checked" : ""}>
-              <div class="recite-pair ${on ? "done" : ""}">
-                ${it.zh ? `<div class="zh-hint" style="font-size:13px; font-weight:600; color:var(--series); margin-bottom:4px;">🇨🇳 ${it.zh}</div>` : ""}
-                <div class="wrong">❌ ${it.wrong}</div>
-                <div class="right">⭐ ${it.right}</div>
-              </div>
-            </label>`;
-          }).join("")}
-          </div>
-        </div>`;
-      }).join("");
+          <h2 style="margin-bottom:4px">📅 今日必背 <span class="group-progress en" style="font-size:12px">每天轮换 5 句 · 已毕业的不再出现</span></h2>
+          <div class="muted" style="font-size:12.5px; margin-bottom:10px">出声背，带语调。勾选 = 这句已经能脱口而出（真实对话中自然用出 2 次即毕业）。</div>
+          ${todayItems.map(itemHtml).join("")}
+        </div>
+        ${poolCount > todayItems.length ? `<div class="muted" style="text-align:center; margin:10px 0; font-size:13px;">今天还想多背？还有 ${poolCount - todayItems.length} 句未毕业 —— <a href="#" id="gotoAllRecite" style="color:var(--series); font-weight:600;">查看全部句子</a></div>` : ""}`
+        : `<div class="card empty">🎉 必背句全部毕业了！<br>练习产生新的高频错误后，Claude 会补充新的必背句。</div>`;
+    } else {
+      body = `<div class="muted" style="margin-bottom:12px; font-size:13px">全部必背句浏览（勾选 = 已能脱口而出）</div>` +
+        (D.recite || []).map((g, gi) => {
+          const done = g.items.filter((_, ii) => reciteDone[gi + "|" + ii]).length;
+          return `
+          <div class="card">
+            <h2 style="margin-bottom:4px">${g.group}</h2>
+            <div class="group-progress en">${done} / ${g.items.length} 已脱口而出</div>
+            <div style="margin-top:8px">
+            ${g.items.map((it, ii) => itemHtml({ gi, ii, it })).join("")}
+            </div>
+          </div>`;
+        }).join("");
+    }
+
+    el.innerHTML = `
+      <div style="display:flex; gap:6px; align-items:center; margin-bottom:12px; flex-wrap:wrap;">
+        <button class="chip ${reciteMode === "today" ? "on" : ""}" data-mode="today">📅 今日必背</button>
+        <button class="chip ${reciteMode === "all" ? "on" : ""}" data-mode="all">📚 全部句子</button>
+        <button class="chip" id="toggleEnBtn" style="margin-left:auto">${reciteHideEn ? "👁 显示英文" : "🙈 隐藏英文"}</button>
+      </div>
+      ${body}`;
+
+    $$(".chip[data-mode]", el).forEach(c => c.onclick = () => {
+      reciteMode = c.dataset.mode; reciteRevealed = {};
+      store.set("ep_recite_mode", reciteMode); renderRecite();
+    });
+    const teb = $("#toggleEnBtn", el);
+    if (teb) teb.onclick = () => {
+      reciteHideEn = !reciteHideEn; reciteRevealed = {};
+      store.set("ep_recite_hide", reciteHideEn); renderRecite();
+    };
+    const ga = $("#gotoAllRecite", el);
+    if (ga) ga.onclick = e => {
+      e.preventDefault(); reciteMode = "all"; reciteRevealed = {};
+      store.set("ep_recite_mode", reciteMode); renderRecite();
+    };
+    $$(".recite-reveal", el).forEach(r => r.onclick = e => {
+      e.preventDefault(); e.stopPropagation();
+      reciteRevealed[r.dataset.key] = true; renderRecite();
+    });
     $$('input[type=checkbox]', el).forEach(cb => {
       cb.onchange = () => {
         reciteDone[cb.dataset.key] = cb.checked || undefined;
