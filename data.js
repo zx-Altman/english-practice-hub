@@ -2,7 +2,7 @@
 // 修改这里，网站刷新即可看到最新内容
 const PRACTICE_DATA = {
 
-  updatedAt: "2026-11-08",
+  updatedAt: "2026-11-09",
 
   // ============ 每日题包（按日期） ============
   packs: [
@@ -673,6 +673,24 @@ const PRACTICE_DATA = {
   // status: active 活跃 | watching 观察中 | graduated 已毕业
   // 毕业标准：自由输出中自然用对 2 次
   errorBank: [
+    { id: "run-into-problem", category: "搭配", wrong: "he met up some problem", right: "he had run into a problem", note: "遇到问题用 run into a problem；met up 是\"约见面\"", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "ask-me-for-help", category: "介词", wrong: "ask me from help", right: "asked me for help", note: "向某人求助 ask someone FOR help", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "repaired-fix", category: "词汇", wrong: "I have repaired the system problem in the morning", right: "I fixed the problem with the system in the morning", note: "修系统用 fix（repair 偏修机器硬件）；过去时间点用一般过去时", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "indirect-question", category: "句式", wrong: "asking where is the breakfast restaurant", right: "who asked where the breakfast restaurant was", note: "间接疑问句用陈述语序 where ... was，不倒装", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "listen-clearly", category: "词汇", wrong: "I didn't listen clearly", right: "I didn't catch everything", note: "没听清用 didn't catch，listen 是\"听\"的动作不是\"听见\"", wrongCount: 2, lastWrong: "2026-11-09", status: "active" },
+    { id: "can-helps", category: "语法", wrong: "it can helps digest", right: "it helps with digestion", note: "情态动词 can 后接动词原形；助消化用 help with digestion", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "make-me-have", category: "中式直译", wrong: "can make me have a sense of achievement", right: "gives me a real sense of achievement", note: "绕圈表达：用直接动词 give，不要 make me have", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "if-get-stuck", category: "搭配", wrong: "if i finally can't solve", right: "if I get stuck", note: "搞不定/卡住用 get stuck，简洁自然；solve 后还需要宾语", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "waiting-for-which", category: "句式", wrong: "I'm just waiting for which one I will be assigned", right: "all I can do is wait and see which one I'll be assigned to", note: "等着看用 wait and see；assign 后加 to", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "take-her-go-through", category: "搭配", wrong: "I take her go through the main process", right: "I walked her through the main process", note: "带某人逐步讲解用 walk someone through，不能字面直译", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "work-capacity", category: "词汇", wrong: "then can save my work capacity", right: "that would reduce my workload", note: "减轻工作量用 reduce my workload；主语不能丢", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "breast-chest", category: "词汇", wrong: "the breast exercise", right: "today's chest workout", note: "练胸用 chest；breast 指女性乳房，会闹笑话", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "reps-in-reserve", category: "搭配", wrong: "reserve 3 times strength", right: "keeping three reps in reserve", note: "健身预留次数用 reps in reserve (RIR)", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "pile-of-laundry", category: "语法", wrong: "a big pile dirty clothes", right: "a big pile of laundry", note: "a pile OF + 名词；待洗衣物统称 laundry", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "pick-to-dryer", category: "搭配", wrong: "pick them to the dryer", right: "put them in the dryer", note: "放进烘干机用 put ... in the dryer，pick 是\"捡/挑\"", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "turn-it-in", category: "搭配", wrong: "if someone pick it up and submit", right: "in case someone turned it in", note: "捡到上交用 turn in；pick up 只是\"捡起\"", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "energy-not-good", category: "中式直译", wrong: "her energy is not good and easy to get tired", right: "she gets tired easily", note: "体力不好用 gets tired easily / doesn't have much stamina", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "dropped-subject", category: "句式", wrong: "Said that he… / and will stay here / then can save…", right: "he said that… / she'll stay here / that would reduce…", note: "英文每句都要有主语，不能像中文一样省略", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "notice-lightly", category: "中式直译", wrong: "I just want to notice the front desk lightly", right: "I just wanted to let the front desk know", note: "礼貌告知用 let someone know；\"通知\"不是 notice，\"轻声地\"不是 lightly", wrongCount: 1, lastWrong: "2026-11-08", status: "active" },
     { id: "past-three-days", category: "句式", wrong: "They supply the tissue for three days", right: "They haven't left tissues in my room for the past three days", note: "持续到现在的状态用现在完成时 + for the past three days", wrongCount: 1, lastWrong: "2026-11-08", status: "active" },
     { id: "make-into-coldbrew", category: "介词", wrong: "make it in cold", right: "make it into cold brew", note: "把A变成B用 make A into B；冷萃是 cold brew", wrongCount: 1, lastWrong: "2026-11-08", status: "active" },
