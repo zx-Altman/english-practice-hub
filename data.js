@@ -2,7 +2,7 @@
 // 修改这里，网站刷新即可看到最新内容
 const PRACTICE_DATA = {
 
-  updatedAt: "2026-11-09",
+  updatedAt: "2026-11-11",
 
   // ============ 每日题包（按日期） ============
   packs: [
@@ -673,6 +673,12 @@ const PRACTICE_DATA = {
   // status: active 活跃 | watching 观察中 | graduated 已毕业
   // 毕业标准：自由输出中自然用对 2 次
   errorBank: [
+    { id: "come-to-find-me", category: "词义", wrong: "she will come to find me the week after next", right: "she'll come to visit me the week after next", note: "find 是\"找到\"（寻找后得到），来看我用 visit；此句在必背句里，仍没认出来", wrongCount: 1, lastWrong: "2026-11-10", status: "active" },
+    { id: "boring-bored", category: "词汇", wrong: "I'm boring with that a little", right: "I'm getting a little bored with it", note: "boring 修饰事物，bored 描述人的感受；自己挑错时也没发现", wrongCount: 2, lastWrong: "2026-11-10", status: "active" },
+    { id: "am-afraid", category: "语法", wrong: "I also afraid that I can't do the new project", right: "I'm also afraid that I might not handle the next one", note: "afraid 是形容词，必须加 am；盲区级错误，挑错时完全没看见", wrongCount: 1, lastWrong: "2026-11-10", status: "active" },
+    { id: "a-lot-of-noodles", category: "语法", wrong: "I ate a lot noodles last night", right: "I ate a lot of noodles last night", note: "a lot OF + 名词", wrongCount: 1, lastWrong: "2026-11-10", status: "active" },
+    { id: "standby-verb", category: "词汇", wrong: "I need to standby to help them", right: "I need to be on call / on standby in case they run into problems", note: "standby 是名词，作谓语要 be on standby", wrongCount: 1, lastWrong: "2026-11-10", status: "active" },
+    { id: "squeeze-in", category: "搭配", wrong: "I always squeeze some time on weekends", right: "I try to squeeze in some time on weekends", note: "挤出时间必须带 in；11-09 写错、11-10 挑错仍未认出", wrongCount: 2, lastWrong: "2026-11-10", status: "active" },
     { id: "run-into-problem", category: "搭配", wrong: "he met up some problem", right: "he had run into a problem", note: "遇到问题用 run into a problem；met up 是\"约见面\"", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "ask-me-for-help", category: "介词", wrong: "ask me from help", right: "asked me for help", note: "向某人求助 ask someone FOR help", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "repaired-fix", category: "词汇", wrong: "I have repaired the system problem in the morning", right: "I fixed the problem with the system in the morning", note: "修系统用 fix（repair 偏修机器硬件）；过去时间点用一般过去时", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
