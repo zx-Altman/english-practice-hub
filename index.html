@@ -268,7 +268,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-11-11"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-11-11b"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -371,7 +371,7 @@
 ${p.items.map((it, i) => `#### 第 ${i + 1} 题 · ${rec.grades[i] === 'ok' ? '✅ 全对' : rec.grades[i] === 'half' ? '⚠️ 半对' : '❌ 有错'}
 - **题目**: ${it.q.replace(/<[^>]+>/g, '')}
 - **我的作答**: ${rec.answers[i] || '（未输入）'}
-- **参考答案**: ${it.a}
+${it.spots && it.spots.length ? `- **错误点**: ${it.spots.map(s => s.bad).join('；')}\n- **最小修正**: ${it.fix}\n- **参考答案**: ${it.a}` : `- **参考答案**: ${it.a}`}
 ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).join('\n\n')}`;
 
     if (navigator.clipboard && navigator.clipboard.writeText) {
@@ -414,7 +414,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
 ${p.items.map((it, i) => `#### 第 ${i + 1} 题 · ${rec.grades[i] === 'ok' ? '✅ 全对' : rec.grades[i] === 'half' ? '⚠️ 半对' : '❌ 有错'}
 - **题目**: ${it.q.replace(/<[^>]+>/g, '')}
 - **我的作答**: ${rec.answers[i] || '（未输入）'}
-- **参考答案**: ${it.a}
+${it.spots && it.spots.length ? `- **错误点**: ${it.spots.map(s => s.bad).join('；')}\n- **最小修正**: ${it.fix}\n- **参考答案**: ${it.a}` : `- **参考答案**: ${it.a}`}
 ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).join('\n\n')}`;
 
     try {
@@ -512,8 +512,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
         box.style.marginTop = "10px";
         box.innerHTML = `
           <div class="a-label">第 ${i + 1} 题 · ${g === "ok" ? "✅ 全对" : g === "half" ? "⚠️ 半对" : "❌ 有错"}</div>
-          <div class="a-text">${it.a}</div>
-          ${it.notes && it.notes.length ? "<ul>" + it.notes.map(n => `<li>${n}</li>`).join("") + "</ul>" : ""}`;
+          ${answerHtml(it)}`;
         rl.appendChild(box);
       });
       $("#pushGithubBtn").onclick = () => syncToGitHub(p, rec);
@@ -604,14 +603,12 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
       extraRevealed = true;
       const zone = $("#extraAnswerZone");
       const uAns = extraAnswers[extraQi] || "";
-      const analysis = analyzeAnswer(uAns, it.a, it.notes);
+      const analysis = analyzeAnswer(uAns, it.a, it.notes, it.fix);
       if (!extraGrades[extraQi]) extraGrades[extraQi] = analysis.recommend;
 
       zone.innerHTML = `
         <div class="answer">
-          <div class="a-label">参考答案</div>
-          <div class="a-text">${it.a}</div>
-          ${it.notes && it.notes.length ? "<ul>" + it.notes.map(n => `<li>${n}</li>`).join("") + "</ul>" : ""}
+          ${answerHtml(it)}
           ${analysis.feedbackHtml}
         </div>
         <div class="grade-row">
@@ -630,7 +627,30 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
     };
   }
 
-  function analyzeAnswer(userAns, stdAns, notes) {
+  // 统一的答案展示：挑错题（含 spots）拆三层——错误点 / 最小修正 / 地道版
+  function answerHtml(it) {
+    const notesHtml = it.notes && it.notes.length ? "<ul>" + it.notes.map(n => `<li>${n}</li>`).join("") + "</ul>" : "";
+    if (it.spots && it.spots.length) {
+      return `
+      <div class="a-label">🔍 错误点${it.polish ? "（润化级，非硬伤）" : ""}</div>
+      ${it.spots.map(s => `
+      <div style="display:flex; gap:8px; align-items:baseline; margin:4px 0; font-size:13px; flex-wrap:wrap;">
+        <span style="background:rgba(225,63,84,.12); color:var(--serious); border-radius:6px; padding:2px 8px; text-decoration:line-through;">${s.bad}</span>
+        <span style="color:var(--muted); font-size:12px;">→ ${s.why}</span>
+      </div>`).join("")}
+      <div class="a-label" style="margin-top:10px;">✏️ 最小修正（判分以此为准）</div>
+      <div class="a-text">${it.fix}</div>
+      <div class="a-label" style="margin-top:10px;">⭐ 地道版（选学）</div>
+      <div class="a-text" style="color:var(--muted);">${it.a}</div>
+      ${notesHtml}`;
+    }
+    return `
+      <div class="a-label">参考答案</div>
+      <div class="a-text">${it.a}</div>
+      ${notesHtml}`;
+  }
+
+  function analyzeAnswer(userAns, stdAns, notes, fixAns) {
     if (!userAns || !userAns.trim()) {
       return {
         recommend: "bad",
@@ -753,12 +773,21 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
       }
     });
 
-    // 计算基本单词重合度
+    // 计算基本单词重合度（同时对照地道版与最小修正版，取更高者）
     const userWordSet = new Set(normUser.split(" ").filter(w => w.length > 1));
     const stdWords = normStd.split(" ").filter(w => w.length > 1);
     let matchedCount = 0;
     stdWords.forEach(w => { if (userWordSet.has(w)) matchedCount++; });
-    const similarity = stdWords.length > 0 ? Math.round((matchedCount / stdWords.length) * 100) : 0;
+    let similarity = stdWords.length > 0 ? Math.round((matchedCount / stdWords.length) * 100) : 0;
+    if (fixAns) {
+      const normFix = fixAns.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+      const fixWords = normFix.split(" ").filter(w => w.length > 1);
+      if (fixWords.length) {
+        let fMatch = 0;
+        fixWords.forEach(w => { if (userWordSet.has(w)) fMatch++; });
+        similarity = Math.max(similarity, Math.round((fMatch / fixWords.length) * 100));
+      }
+    }
 
     // 网页端定位：专注于核心搭配匹配，容忍所有句式与同义词变体
     let recGrade = "bad";
@@ -799,7 +828,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
     const zone = $("#answerZone"); if (!zone) return;
     const rec = progress[p.date] || { answers: [], grades: [] };
     const userAns = (rec.answers || [])[i] || "";
-    const analysis = analyzeAnswer(userAns, it.a, it.notes);
+    const analysis = analyzeAnswer(userAns, it.a, it.notes, it.fix);
 
     // 如果未选评价，默认应用推荐评价
     if (!rec.grades[i]) {
@@ -812,9 +841,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
 
     zone.innerHTML = `
       <div class="answer">
-        <div class="a-label">参考答案</div>
-        <div class="a-text">${it.a}</div>
-        ${it.notes && it.notes.length ? "<ul>" + it.notes.map(n => `<li>${n}</li>`).join("") + "</ul>" : ""}
+        ${answerHtml(it)}
         ${analysis.feedbackHtml}
       </div>
       <div class="grade-row">
