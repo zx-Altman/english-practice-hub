@@ -268,7 +268,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-11-11b"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-11-12"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -737,7 +737,9 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
       let itemHit = false;
       let matchedPhrase = options[0];
 
-      for (const tp of options) {
+      for (const tpRaw of options) {
+        // 与用户输入做同样的归一化（撇号等标点转空格），避免 didn't vs didn t 匹配失败
+        const tp = tpRaw.toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
         const words = tp.split(" ").filter(w => !["my", "a", "the", "some", "your", "of", "in", "energy", "mobile", "data"].includes(w) && w.length > 1);
         const anchors = words.length >= 2 ? words.slice(0, 2) : words;
 
@@ -761,7 +763,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
 
         if (isHit) {
           itemHit = true;
-          matchedPhrase = tp;
+          matchedPhrase = tpRaw;
           break;
         }
       }
