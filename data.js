@@ -2,7 +2,7 @@
 // 修改这里，网站刷新即可看到最新内容
 const PRACTICE_DATA = {
 
-  updatedAt: "2026-11-16",
+  updatedAt: "2026-11-17",
 
   // ============ 每日题包（按日期） ============
   packs: [
@@ -964,9 +964,10 @@ const PRACTICE_DATA = {
   // status: active 活跃 | watching 观察中 | graduated 已毕业
   // 毕业标准：自由输出中自然用对 2 次
   errorBank: [
-    { id: "livestream-replay", category: "词汇缺口", wrong: "I missed live yesterday and i will watch the record video", right: "I missed yesterday's livestream, so I'm watching the replay today", note: "直播是 livestream（名词），回放是 replay；\"live\" 单独不能作名词", wrongCount: 1, lastWrong: "2026-11-12", status: "active" },
-    { id: "responser", category: "词汇缺口", wrong: "the responser spoke too fast during the meeting", right: "the other side spoke too fast in the meeting", note: "responser 不是英文词；会议对方说 the other side / they", wrongCount: 1, lastWrong: "2026-11-12", status: "active" },
-    { id: "race-time", category: "词汇缺口", wrong: "I got my historic best grade in five-miles", right: "I ran my best 5K time ever — I hit a new PR", note: "比赛成绩用 time 不用 grade；五公里口语说 5K；刷新纪录 hit a new PR", wrongCount: 1, lastWrong: "2026-11-12", status: "active" },
+    { id: "problem-happen", category: "语法", wrong: "in case problem happen", right: "in case problems happen / in case any problems come up", note: "可数名词不能单数裸用作主语，要加复数或 any", wrongCount: 1, lastWrong: "2026-11-17", status: "active" },
+    { id: "livestream-replay", category: "词汇缺口", wrong: "I missed live yesterday and i will watch the record video", right: "I missed yesterday's livestream, so I'm watching the replay today", note: "直播是 livestream（名词），回放是 replay；\"live\" 单独不能作名词", wrongCount: 2, lastWrong: "2026-11-17", status: "active" },
+    { id: "responser", category: "词汇缺口", wrong: "the responser spoke too fast during the meeting", right: "the other side spoke too fast in the meeting", note: "responser 不是英文词；会议对方说 the other side / they（挑错时空白）", wrongCount: 2, lastWrong: "2026-11-17", status: "active" },
+    { id: "race-time", category: "词汇缺口", wrong: "I got my best pr", right: "I ran my best 5K time ever — I hit a new PR", note: "比赛成绩用 time 不用 grade；刷新纪录固定说 hit a new PR（不说 got my best PR）", wrongCount: 2, lastWrong: "2026-11-17", status: "active" },
     { id: "make-up-for", category: "搭配", wrong: "i will watch the record video to supply", right: "I'm watching the replay today to make up for it", note: "补上/弥补用 make up for；supply 是\"供应\"", wrongCount: 1, lastWrong: "2026-11-12", status: "active" },
     { id: "get-up-to-speed", category: "搭配", wrong: "My new colleague need to catch up with the process in two weeks", right: "The new colleague needs to get up to speed with the work within two weeks", note: "尽快熟悉跟上进度用 get up to speed", wrongCount: 1, lastWrong: "2026-11-12", status: "active" },
     { id: "take-over-colleague", category: "搭配", wrong: "can take on soon then reduce my workload", right: "can take over soon — that would reduce my workload", note: "接手工作用 take over（take on 是承担/接受挑战）；that would reduce 不要丢主语", wrongCount: 2, lastWrong: "2026-11-16", status: "active" },
@@ -975,9 +976,9 @@ const PRACTICE_DATA = {
     { id: "am-afraid", category: "语法", wrong: "I also afraid that I can't do the new project", right: "I'm also afraid that I might not handle the next one", note: "afraid 是形容词，必须加 am；盲区级错误，挑错时完全没看见", wrongCount: 1, lastWrong: "2026-11-10", status: "active" },
     { id: "a-lot-of-noodles", category: "语法", wrong: "I ate a lot noodles last night", right: "I ate a lot of noodles last night", note: "a lot OF + 名词", wrongCount: 1, lastWrong: "2026-11-10", status: "active" },
     { id: "standby-verb", category: "词汇", wrong: "I need to standby to help them", right: "I need to be on call / on standby in case they run into problems", note: "standby 是名词，作谓语要 be on standby", wrongCount: 1, lastWrong: "2026-11-10", status: "active" },
-    { id: "squeeze-in", category: "搭配", wrong: "I always squeeze some time on weekends", right: "I try to squeeze in some time on weekends", note: "挤出时间必须带 in；11-09 写错、11-10 挑错仍未认出", wrongCount: 3, lastWrong: "2026-11-12", status: "active" },
+    { id: "squeeze-in", category: "搭配", wrong: "squeeze to", right: "I try to squeeze in some time on weekends", note: "挤出时间必须带 in：squeeze in some time（第 4 次）", wrongCount: 4, lastWrong: "2026-11-17", status: "active" },
     { id: "run-into-problem", category: "搭配", wrong: "he run into the system problem", right: "he had run into a problem with the system", note: "遇到问题用 run into a problem，过去叙事注意过去时 ran/had run into", wrongCount: 4, lastWrong: "2026-11-16", status: "active" },
-    { id: "ask-me-for-help", category: "介词", wrong: "ask help from me / ask me from help", right: "asked me for help", note: "向某人求助固定用 ask someone FOR help（已第 4 次出现，介词是 for 不要用 from）", wrongCount: 4, lastWrong: "2026-11-16", status: "active" },
+    { id: "ask-me-for-help", category: "介词", wrong: "ask help for me", right: "asked me for help", note: "向某人求助固定用 ask someone FOR help（第 5 次写错：ask me from help / ask help for me 都不对）", wrongCount: 5, lastWrong: "2026-11-17", status: "active" },
     { id: "repaired-fix", category: "词汇", wrong: "I have repaired the system problem in the morning", right: "I fixed the problem with the system in the morning", note: "修系统用 fix（repair 偏修机器硬件）；过去时间点用一般过去时", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "indirect-question", category: "句式", wrong: "asking where is the breakfast restaurant", right: "who asked where the breakfast restaurant was", note: "间接疑问句用陈述语序 where ... was，不倒装", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "listen-clearly", category: "词汇", wrong: "I didn't listen clearly", right: "I didn't catch everything", note: "没听清用 didn't catch，listen 是\"听\"的动作不是\"听见\"", wrongCount: 2, lastWrong: "2026-11-09", status: "active" },
@@ -991,8 +992,8 @@ const PRACTICE_DATA = {
     { id: "reps-in-reserve", category: "搭配", wrong: "reserve 3 times strength", right: "keeping three reps in reserve", note: "健身预留次数用 reps in reserve (RIR)", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "pile-of-laundry", category: "语法", wrong: "a big pile dirty clothes", right: "a big pile of laundry", note: "a pile OF + 名词；待洗衣物统称 laundry", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "pick-to-dryer", category: "搭配", wrong: "pick them to the dryer", right: "put them in the dryer", note: "放进烘干机用 put ... in the dryer，pick 是\"捡/挑\"", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
-    { id: "turn-it-in", category: "搭配", wrong: "if someone pick it up and submit", right: "in case someone turned it in", note: "捡到上交用 turn in；pick up 只是\"捡起\"", wrongCount: 2, lastWrong: "2026-11-12", status: "active" },
-    { id: "energy-not-good", category: "中式直译", wrong: "her energy is not good and easy to get tired", right: "she gets tired easily", note: "体力不好用 gets tired easily / doesn't have much stamina", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
+    { id: "turn-it-in", category: "搭配", wrong: "gived it to the counter", right: "in case someone turned it in", note: "捡到上交用 turn in；pick up 只是\"捡起\"", wrongCount: 3, lastWrong: "2026-11-17", status: "active" },
+    { id: "energy-not-good", category: "中式直译", wrong: "her energy is not good and easy to get tired", right: "she gets tired easily", note: "捡到上交用 turned it in to the front desk；gived 不是词，过去式是 gave", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "dropped-subject", category: "句式", wrong: "Said that he… / and will stay here / then can save…", right: "he said that… / she'll stay here / that would reduce…", note: "英文每句都要有主语，不能像中文一样省略", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "notice-lightly", category: "中式直译", wrong: "I just want to notice the front desk lightly", right: "I just wanted to let the front desk know", note: "礼貌告知用 let someone know；\"通知\"不是 notice，\"轻声地\"不是 lightly", wrongCount: 1, lastWrong: "2026-11-08", status: "active" },
     { id: "past-three-days", category: "句式", wrong: "They supply the tissue for three days", right: "They haven't left tissues in my room for the past three days", note: "持续到现在的状态用现在完成时 + for the past three days", wrongCount: 1, lastWrong: "2026-11-08", status: "active" },
