@@ -2,7 +2,7 @@
 // 修改这里，网站刷新即可看到最新内容
 const PRACTICE_DATA = {
 
-  updatedAt: "2026-11-17",
+  updatedAt: "2026-11-19",
 
   // ============ 每日题包（按日期） ============
   packs: [
@@ -964,10 +964,11 @@ const PRACTICE_DATA = {
   // status: active 活跃 | watching 观察中 | graduated 已毕业
   // 毕业标准：自由输出中自然用对 2 次
   errorBank: [
-    { id: "problem-happen", category: "语法", wrong: "in case problem happen", right: "in case problems happen / in case any problems come up", note: "可数名词不能单数裸用作主语，要加复数或 any", wrongCount: 1, lastWrong: "2026-11-17", status: "active" },
-    { id: "livestream-replay", category: "词汇缺口", wrong: "I missed live yesterday and i will watch the record video", right: "I missed yesterday's livestream, so I'm watching the replay today", note: "直播是 livestream（名词），回放是 replay；\"live\" 单独不能作名词", wrongCount: 2, lastWrong: "2026-11-17", status: "active" },
-    { id: "responser", category: "词汇缺口", wrong: "the responser spoke too fast during the meeting", right: "the other side spoke too fast in the meeting", note: "responser 不是英文词；会议对方说 the other side / they（挑错时空白）", wrongCount: 2, lastWrong: "2026-11-17", status: "active" },
-    { id: "race-time", category: "词汇缺口", wrong: "I got my best pr", right: "I ran my best 5K time ever — I hit a new PR", note: "比赛成绩用 time 不用 grade；刷新纪录固定说 hit a new PR（不说 got my best PR）", wrongCount: 2, lastWrong: "2026-11-17", status: "active" },
+    { id: "chinese-placeholder", category: "习惯", wrong: "the online 发布会 livestream / the best 深蹲 pr record", right: "the online launch livestream / a new squat PR", note: "英文句子里不要留中文占位：发布会=launch event、深蹲=squats；想不起就用简单词顶上", wrongCount: 1, lastWrong: "2026-11-19", status: "active" },
+    { id: "problem-happen", category: "语法", wrong: "in case problem happen", right: "in case problems happen / in case any problems come up", note: "可数名词不能单数裸用作主语：run into a serious problem / run into problems（11-19 造句又两次裸用）", wrongCount: 3, lastWrong: "2026-11-19", status: "active" },
+    { id: "livestream-replay", category: "词汇缺口", wrong: "I missed live yesterday and i will watch the record video", right: "I missed yesterday's livestream, so I'm watching the replay today", note: "直播是 livestream（名词），回放是 replay；\"live\" 单独不能作名词", wrongCount: 2, lastWrong: "2026-11-19", status: "active" },
+    { id: "responser", category: "词汇缺口", wrong: "The other side representer", right: "the other side spoke too fast in the meeting", note: "直播 livestream / 回放 replay（11-19 造句三连用对：livestream + replay + make up for it，毕业观察中）", wrongCount: 3, lastWrong: "2026-11-19", status: "active" },
+    { id: "race-time", category: "词汇缺口", wrong: "I got the best personal pr record", right: "I ran my best 5K time ever — I hit a new PR", note: "深蹲是 squats；PR 已含 personal record 之意，不要堆叠成 personal pr record；刷新纪录说 hit a new PR", wrongCount: 3, lastWrong: "2026-11-19", status: "active" },
     { id: "make-up-for", category: "搭配", wrong: "i will watch the record video to supply", right: "I'm watching the replay today to make up for it", note: "补上/弥补用 make up for；supply 是\"供应\"", wrongCount: 1, lastWrong: "2026-11-12", status: "active" },
     { id: "get-up-to-speed", category: "搭配", wrong: "My new colleague need to catch up with the process in two weeks", right: "The new colleague needs to get up to speed with the work within two weeks", note: "尽快熟悉跟上进度用 get up to speed", wrongCount: 1, lastWrong: "2026-11-12", status: "active" },
     { id: "take-over-colleague", category: "搭配", wrong: "can take on soon then reduce my workload", right: "can take over soon — that would reduce my workload", note: "接手工作用 take over（take on 是承担/接受挑战）；that would reduce 不要丢主语", wrongCount: 2, lastWrong: "2026-11-16", status: "active" },
@@ -976,16 +977,16 @@ const PRACTICE_DATA = {
     { id: "am-afraid", category: "语法", wrong: "I also afraid that I can't do the new project", right: "I'm also afraid that I might not handle the next one", note: "afraid 是形容词，必须加 am；盲区级错误，挑错时完全没看见", wrongCount: 1, lastWrong: "2026-11-10", status: "active" },
     { id: "a-lot-of-noodles", category: "语法", wrong: "I ate a lot noodles last night", right: "I ate a lot of noodles last night", note: "a lot OF + 名词", wrongCount: 1, lastWrong: "2026-11-10", status: "active" },
     { id: "standby-verb", category: "词汇", wrong: "I need to standby to help them", right: "I need to be on call / on standby in case they run into problems", note: "standby 是名词，作谓语要 be on standby", wrongCount: 1, lastWrong: "2026-11-10", status: "active" },
-    { id: "squeeze-in", category: "搭配", wrong: "squeeze to", right: "I try to squeeze in some time on weekends", note: "挤出时间必须带 in：squeeze in some time（第 4 次）", wrongCount: 4, lastWrong: "2026-11-17", status: "active" },
+    { id: "squeeze-in", category: "搭配", wrong: "squeeze to", right: "I try to squeeze in some time on weekends", note: "挤出时间必须带 in：squeeze in some time（前 4 次漏 in；11-19 造句首次用对，毕业观察中，再对 1 次毕业）", wrongCount: 4, lastWrong: "2026-11-19", status: "active" },
     { id: "run-into-problem", category: "搭配", wrong: "he run into the system problem", right: "he had run into a problem with the system", note: "遇到问题用 run into a problem，过去叙事注意过去时 ran/had run into", wrongCount: 4, lastWrong: "2026-11-16", status: "active" },
-    { id: "ask-me-for-help", category: "介词", wrong: "ask help for me", right: "asked me for help", note: "向某人求助固定用 ask someone FOR help（第 5 次写错：ask me from help / ask help for me 都不对）", wrongCount: 5, lastWrong: "2026-11-17", status: "active" },
+    { id: "ask-me-for-help", category: "介词", wrong: "ask help for me", right: "asked me for help", note: "第 6 次写错！结构是 ask + 人 + for + help（介词 for 夹在人和 help 中间）：asked ME FOR help", wrongCount: 6, lastWrong: "2026-11-19", status: "active" },
     { id: "repaired-fix", category: "词汇", wrong: "I have repaired the system problem in the morning", right: "I fixed the problem with the system in the morning", note: "修系统用 fix（repair 偏修机器硬件）；过去时间点用一般过去时", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "indirect-question", category: "句式", wrong: "asking where is the breakfast restaurant", right: "who asked where the breakfast restaurant was", note: "间接疑问句用陈述语序 where ... was，不倒装", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "listen-clearly", category: "词汇", wrong: "I didn't listen clearly", right: "I didn't catch everything", note: "没听清用 didn't catch，listen 是\"听\"的动作不是\"听见\"", wrongCount: 2, lastWrong: "2026-11-09", status: "active" },
     { id: "can-helps", category: "语法", wrong: "it can helps digest", right: "it helps with digestion", note: "情态动词 can 后接动词原形；助消化用 help with digestion", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
-    { id: "make-me-have", category: "中式直译", wrong: "makes me get a sense of achievement", right: "gives me a real sense of achievement", note: "绕圈表达复发：用直接动词 give，不要用 make me get / make me have 拼积木", wrongCount: 2, lastWrong: "2026-11-16", status: "active" },
+    { id: "make-me-have", category: "中式直译", wrong: "makes me get a sense of achievement", right: "gives me a real sense of achievement", note: "绕圈表达：用直接动词 give（11-19 造句首次用对 gives me a sense of achievement，毕业观察中）", wrongCount: 2, lastWrong: "2026-11-19", status: "active" },
     { id: "if-get-stuck", category: "搭配", wrong: "if i finally can't solve", right: "if I get stuck", note: "搞不定/卡住用 get stuck，简洁自然；solve 后还需要宾语", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
-    { id: "waiting-for-which", category: "句式", wrong: "see and wait which one i will be assigned", right: "all I can do is wait and see which one I\'ll be assigned to", note: "固定短语是 wait and see（不是 see and wait）；分配到...用 be assigned TO（漏 to）", wrongCount: 2, lastWrong: "2026-11-16", status: "active" },
+    { id: "waiting-for-which", category: "句式", wrong: "all we can do is to see and wait", right: "all I can do is wait and see which one I\'ll be assigned to", note: "固定语序 wait and see（第 3 次颠倒成 see and wait）；拍板是 make the final decision，不是 be signed", wrongCount: 3, lastWrong: "2026-11-19", status: "active" },
     { id: "take-her-go-through", category: "搭配", wrong: "I walk with the new colleague through", right: "I walked her through the main process", note: "带某人逐步走流程用 walk someone through，中间绝不加 with（不说 walk with sb through）", wrongCount: 3, lastWrong: "2026-11-16", status: "active" },
     { id: "work-capacity", category: "词汇", wrong: "then can save my work capacity", right: "that would reduce my workload", note: "减轻工作量用 reduce my workload；主语不能丢", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "breast-chest", category: "词汇", wrong: "the breast exercise", right: "today's chest workout", note: "练胸用 chest；breast 指女性乳房，会闹笑话", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
@@ -1137,7 +1138,9 @@ const PRACTICE_DATA = {
       { zh: "今天我必须把系统问题修好。", wrong: "correct our system", right: "I need to fix the system today." },
       { zh: "我得随时待命，以防他们需要帮助。", wrong: "I need to standby", right: "I need to be on call in case they need help." },
       { zh: "我没全听清，但听懂了大意。", wrong: "I didn't listen very clearly", right: "I didn't catch everything, but I got the main idea." },
-      { zh: "她问早餐厅在几楼。", wrong: "She asked where is the breakfast restaurant?", right: "She asked where the breakfast restaurant was." }
+      { zh: "她问早餐厅在几楼。", wrong: "She asked where is the breakfast restaurant?", right: "She asked where the breakfast restaurant was." },
+      { zh: "他向我求助。", wrong: "he ask help for me", right: "He asked me for help." },
+      { zh: "我们现在只能等着看。", wrong: "all we can do is to see and wait", right: "All we can do is wait and see." }
     ]},
     { group: "项目与成长（新）", items: [
       { zh: "独立解决难题让我很有成就感。", wrong: "I will feel very achievable", right: "Solving a difficult problem on my own gives me a real sense of achievement." },
