@@ -235,6 +235,7 @@
     </div>
     <nav id="tabs">
       <button data-tab="today" class="on">今日练习</button>
+      <button data-tab="flash">⚡ 随手练</button>
       <button data-tab="errors">错题本</button>
       <button data-tab="notes">笔记库</button>
       <button data-tab="recite">必背句</button>
@@ -245,6 +246,7 @@
 
 <div class="wrap">
   <section class="tab on" id="tab-today"></section>
+  <section class="tab" id="tab-flash"></section>
   <section class="tab" id="tab-errors"></section>
   <section class="tab" id="tab-notes"></section>
   <section class="tab" id="tab-recite"></section>
@@ -268,7 +270,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-11-23"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-11-23b"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -314,6 +316,7 @@
     const btn = e.target.closest("button"); if (!btn) return;
     $$("nav button").forEach(b => b.classList.toggle("on", b === btn));
     $$("section.tab").forEach(s => s.classList.toggle("on", s.id === "tab-" + btn.dataset.tab));
+    if (btn.dataset.tab === "flash") renderFlash();
   });
 
   /* ================= TODAY ================= */
@@ -622,15 +625,16 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
           <button class="grade-btn ${extraGrades[extraQi] === "ok" ? "picked" : ""}" data-g="ok">✅ 全对</button>
           <button class="grade-btn ${extraGrades[extraQi] === "half" ? "picked" : ""}" data-g="half">⚠️ 半对</button>
           <button class="grade-btn ${extraGrades[extraQi] === "bad" ? "picked" : ""}" data-g="bad">❌ 有错</button>
+          <button class="btn" id="extraNextQ" style="margin-left:auto;">${extraQi + 1 < extraItems.length ? "下一题 →" : "完成 🎉"}</button>
         </div>`;
-      $$(".grade-btn", zone).forEach(btn => {
-        btn.onclick = () => {
-          extraGrades[extraQi] = btn.dataset.g;
-          extraQi++;
-          extraRevealed = false;
-          renderToday();
-        };
-      });
+      // 事件委托：点任意评级 = 选中并直接进入下一题；"下一题"按钮 = 按推荐评级前进（保底永远可前进）
+      zone.onclick = e => {
+        const btn = e.target.closest("button"); if (!btn) return;
+        if (btn.dataset.g) extraGrades[extraQi] = btn.dataset.g;
+        extraQi++;
+        extraRevealed = false;
+        renderToday();
+      };
     };
   }
 
@@ -879,6 +883,134 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
       if (i + 1 < p.items.length) { qi = i + 1; renderToday(); }
       else { renderToday(); }
     };
+  }
+
+  /* ================= FLASH 随手练（词组闪卡） ================= */
+  let flashState = null; // { queue: [id...], revealed, right, relearned, fail, failedIds: Set }
+  const flashStore = store.get("ep_flash", {}); // { [id]: { streak, wrong } }，连续 2 次认识即毕业
+  const saveFlash = () => store.set("ep_flash", flashStore);
+
+  function flashPool() {
+    return (D.phrases || []).filter(p => !((flashStore[p.id] || {}).streak >= 2));
+  }
+  function flashGraduated() {
+    return (D.phrases || []).filter(p => (flashStore[p.id] || {}).streak >= 2).length;
+  }
+  function sampleFlash(n) {
+    const pool = flashPool();
+    if (!pool.length) return [];
+    // 权重抽样：错过次数越多权重越高（wrong × 2 + 1）
+    const weighted = [];
+    pool.forEach(p => {
+      const w = 1 + (((flashStore[p.id] || {}).wrong) || 0) * 2;
+      for (let i = 0; i < w; i++) weighted.push(p.id);
+    });
+    const out = [];
+    while (out.length < Math.min(n, pool.length) && weighted.length) {
+      const pick = weighted[Math.floor(Math.random() * weighted.length)];
+      if (!out.includes(pick)) out.push(pick);
+      else for (let i = weighted.length - 1; i >= 0; i--) if (weighted[i] === pick) weighted.splice(i, 1);
+    }
+    return out;
+  }
+  function startFlashRound() {
+    flashState = { queue: sampleFlash(10), revealed: false, right: 0, relearned: 0, fail: 0, failedIds: {} };
+    renderFlash();
+  }
+
+  function renderFlash() {
+    const el = $("#tab-flash"); if (!el) return;
+
+    // 开始页
+    if (!flashState) {
+      const pool = flashPool(), grad = flashGraduated(), total = (D.phrases || []).length;
+      el.innerHTML = `
+        <div class="card" style="text-align:center; padding:26px 18px;">
+          <div style="font-size:34px;">⚡</div>
+          <div style="font-size:18px; font-weight:700; margin:6px 0;">随手练 · 词组闪卡</div>
+          <div class="muted" style="font-size:13px; line-height:1.8;">
+            看中文 → 心里说出英文短语 → 点卡片翻面对答案<br>
+            不打字，一轮 10 张，随时来随时走<br>
+            连续两轮"认识"的短语自动毕业
+          </div>
+          <div class="done-chips" style="margin:12px 0;">
+            <span>📚 卡池 <b>${pool.length}</b></span>
+            <span>🎓 已毕业 <b>${grad}</b></span>
+            <span>📦 总计 <b>${total}</b></span>
+          </div>
+          ${pool.length
+            ? `<button class="btn" id="flashStartBtn" style="font-size:15px; padding:10px 28px;">开始一轮（${Math.min(10, pool.length)} 张）</button>`
+            : `<div class="muted">🎉 全部毕业了！等 Claude 补充新卡片。</div>`}
+        </div>`;
+      const b = $("#flashStartBtn"); if (b) b.onclick = startFlashRound;
+      return;
+    }
+
+    // 结算页
+    if (!flashState.queue.length) {
+      el.innerHTML = `
+        <div class="card" style="text-align:center; padding:26px 18px;">
+          <div style="font-size:34px;">🎉</div>
+          <div style="font-size:18px; font-weight:700; margin:6px 0;">本轮完成</div>
+          <div class="done-chips">
+            <span><i class="grade-dot" style="background:var(--good)"></i>一次认识 <b>${flashState.right}</b></span>
+            <span><i class="grade-dot" style="background:var(--warn)"></i>复习后记住 <b>${flashState.relearned}</b></span>
+            <span><i class="grade-dot" style="background:var(--serious)"></i>没记住 <b>${flashState.fail}</b></span>
+          </div>
+          <div style="display:flex; gap:10px; justify-content:center; margin-top:14px;">
+            <button class="btn" id="flashAgainBtn">再来一轮</button>
+            <button class="btn ghost" id="flashEndBtn">结束</button>
+          </div>
+        </div>`;
+      $("#flashAgainBtn").onclick = startFlashRound;
+      $("#flashEndBtn").onclick = () => { flashState = null; renderFlash(); };
+      return;
+    }
+
+    // 答题页
+    const card = (D.phrases || []).find(p => p.id === flashState.queue[0]);
+    if (!card) { flashState.queue.shift(); renderFlash(); return; }
+    const done = flashState.right + flashState.relearned + flashState.fail;
+    el.innerHTML = `
+      <div class="card" style="text-align:center; padding:22px 18px;">
+        <div class="muted" style="font-size:12.5px;">第 ${done + 1} 张 · 本轮剩余 ${flashState.queue.length} 张</div>
+        <div id="flashCard" style="cursor:pointer; margin:18px auto; max-width:420px; min-height:130px;
+             border:1px solid var(--border); border-radius:14px; padding:22px 18px;
+             display:flex; flex-direction:column; justify-content:center; gap:8px;
+             background:var(--surface-1);">
+          ${flashState.revealed ? `
+            <div style="font-size:20px; font-weight:700; color:var(--good-text);">${card.en}</div>
+            ${card.tip ? `<div style="font-size:13px; color:var(--muted);">💡 ${card.tip}</div>` : ""}
+          ` : `
+            <div style="font-size:20px; font-weight:700;">${card.zh}</div>
+            <div style="font-size:12.5px; color:var(--muted);">👇 点我翻面看答案</div>
+          `}
+        </div>
+        ${flashState.revealed ? `
+          <div style="display:flex; gap:10px; justify-content:center;">
+            <button class="grade-btn" data-g="ok" style="font-size:15px;">✅ 认识</button>
+            <button class="grade-btn" data-g="bad" style="font-size:15px;">❌ 没记住</button>
+          </div>` : ""}
+      </div>`;
+
+    $("#flashCard").onclick = () => { flashState.revealed = true; renderFlash(); };
+    $$(".grade-btn", el).forEach(btn => {
+      btn.onclick = () => {
+        const rec = flashStore[card.id] || { streak: 0, wrong: 0 };
+        if (btn.dataset.g === "ok") {
+          rec.streak = (rec.streak || 0) + 1;
+          if (flashState.failedIds[card.id]) { flashState.relearned++; delete flashState.failedIds[card.id]; }
+          else flashState.right++;
+        } else {
+          rec.streak = 0; rec.wrong = (rec.wrong || 0) + 1;
+          flashState.fail++; flashState.failedIds[card.id] = true;
+          flashState.queue.push(card.id); // 没记住 → 排到本轮末尾再考一次
+        }
+        flashStore[card.id] = rec; saveFlash();
+        flashState.queue.shift(); flashState.revealed = false;
+        renderFlash();
+      };
+    });
   }
 
   /* ================= ERRORS ================= */
@@ -1160,7 +1292,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
 
   /* ---------- init ---------- */
   $("#updatedAt").textContent = D.updatedAt;
-  renderToday(); renderErrors(); renderNotes(); renderRecite(); renderStats();
+  renderToday(); renderFlash(); renderErrors(); renderNotes(); renderRecite(); renderStats();
 })();
 
 // PWA Service Worker 注册
