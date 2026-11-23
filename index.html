@@ -270,7 +270,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-11-23c"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-11-24"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -439,13 +439,16 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
         if (statusEl) {
           statusEl.innerHTML = `✅ 已自动推送至 <a href="${issueData.html_url}" target="_blank" style="color:var(--series); font-weight:600; text-decoration:underline;">GitHub Issue #${issueData.number}</a>！`;
         }
+        return true;
       } else {
         const errJson = await res.json().catch(() => ({}));
         if (statusEl) statusEl.textContent = `❌ 推送失败: ${errJson.message || res.statusText}（请检查 Token 权限）`;
         localStorage.removeItem("ep_github_token");
+        return false;
       }
     } catch (err) {
       if (statusEl) statusEl.textContent = `❌ 网络异常: ${err.message}`;
+      return false;
     }
   }
 
@@ -524,12 +527,16 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
       $("#redo").onclick = () => { delete progress[p.date]; store.set("ep_progress", progress); qi = 0; revealed = false; renderToday(); };
       $("#navPrev").onclick = () => { if (packIdx > 0) { packIdx--; revealed = false; renderToday(); } };
       $("#navNext").onclick = () => { if (packIdx < packs.length - 1) { packIdx++; revealed = false; renderToday(); } };
-      // 完成后自动推送打卡（每个题包只自动推一次，重做不重复推）
+      // 完成后自动推送打卡（每个题包只自动推一次，重做不重复推；失败不记标记，下次进入自动重试）
       const pushedLog = store.get("ep_pushed", {});
       if (localStorage.getItem("ep_github_token") && !pushedLog[p.date]) {
-        pushedLog[p.date] = new Date().toISOString();
-        store.set("ep_pushed", pushedLog);
-        syncToGitHub(p, rec);
+        syncToGitHub(p, rec).then(ok => {
+          if (ok) {
+            const pl = store.get("ep_pushed", {});
+            pl[p.date] = new Date().toISOString();
+            store.set("ep_pushed", pl);
+          }
+        });
       }
     } else {
       // 找到第一个未作答题

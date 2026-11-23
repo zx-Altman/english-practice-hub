@@ -1202,6 +1202,9 @@ const PRACTICE_DATA = {
   // status: active 活跃 | watching 观察中 | graduated 已毕业
   // 毕业标准：自由输出中自然用对 2 次
   errorBank: [
+    { id: "poisoned-virus", category: "词义", wrong: "His computer got poisoned", right: "His computer got a virus", note: "电脑中毒用 virus；poison 是化学毒药，poisoned 是被下毒", wrongCount: 1, lastWrong: "2026-11-23", status: "active" },
+    { id: "approve-allow", category: "搭配", wrong: "I approve myself to have a cheat meal", right: "I allow myself one cheat meal a week", note: "允许自己做某事用 allow myself to do；approve 是审批/赞成，主语通常是他人", wrongCount: 1, lastWrong: "2026-11-23", status: "active" },
+    { id: "connect-to", category: "介词", wrong: "connect the hotel wifi", right: "connect to the hotel Wi-Fi", note: "连接到网络必须带 to", wrongCount: 1, lastWrong: "2026-11-23", status: "active" },
     { id: "industry-expert", category: "词汇缺口", wrong: "the industry model", right: "the industry expert / a big name in the industry", note: "行业大咖 = industry expert 或 big name；model 是模特/模型", wrongCount: 1, lastWrong: "2026-11-23", status: "active" },
     { id: "chinese-placeholder", category: "习惯", wrong: "the online 发布会 livestream / the best 深蹲 pr record", right: "the online launch livestream / a new squat PR", note: "英文句子里不要留中文占位：发布会=launch event、深蹲=squats；想不起就用简单词顶上", wrongCount: 1, lastWrong: "2026-11-19", status: "active" },
     { id: "problem-happen", category: "语法", wrong: "in case problem happen", right: "in case problems happen / in case any problems come up", note: "可数名词不能单数裸用作主语：run into a serious problem / run into problems（11-19 造句又两次裸用）", wrongCount: 3, lastWrong: "2026-11-19", status: "active" },
@@ -1218,7 +1221,7 @@ const PRACTICE_DATA = {
     { id: "standby-verb", category: "词汇", wrong: "I need to standby to help them", right: "I need to be on call / on standby in case they run into problems", note: "standby 是名词，作谓语要 be on standby", wrongCount: 1, lastWrong: "2026-11-10", status: "active" },
     { id: "squeeze-in", category: "搭配", wrong: "squeeze to", right: "I try to squeeze in some time on weekends", note: "挤出时间必须带 in：squeeze in some time（前 4 次漏 in；11-19 造句首次用对，毕业观察中，再对 1 次毕业）", wrongCount: 4, lastWrong: "2026-11-19", status: "active" },
     { id: "run-into-problem", category: "搭配", wrong: "he run into the system problem", right: "he had run into a problem with the system", note: "遇到问题用 run into a problem，过去叙事注意过去时 ran/had run into", wrongCount: 4, lastWrong: "2026-11-16", status: "active" },
-    { id: "ask-me-for-help", category: "介词", wrong: "ask help for me", right: "asked me for help", note: "第 7 次！口诀：ask + 人 + for + help——for 夹在人和 help 中间（asked ME FOR help）", wrongCount: 7, lastWrong: "2026-11-23", status: "active" },
+    { id: "ask-me-for-help", category: "介词", wrong: "ask help for me", right: "asked me for help", note: "围剿生效：11-23 三题中两题结构正确（ask me for help / ask the front desk for help），仅 Q3 复发 ask help for me。再连续 2 次自由输出正确即毕业", wrongCount: 7, lastWrong: "2026-11-23", status: "active" },
     { id: "repaired-fix", category: "词汇", wrong: "I have repaired the system problem in the morning", right: "I fixed the problem with the system in the morning", note: "修系统用 fix（repair 偏修机器硬件）；过去时间点用一般过去时", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "indirect-question", category: "句式", wrong: "asking where is the breakfast restaurant", right: "who asked where the breakfast restaurant was", note: "间接疑问句用陈述语序 where ... was，不倒装", wrongCount: 1, lastWrong: "2026-11-09", status: "active" },
     { id: "listen-clearly", category: "词汇", wrong: "I didn't listen clearly", right: "I didn't catch everything", note: "没听清用 didn't catch，listen 是\"听\"的动作不是\"听见\"", wrongCount: 2, lastWrong: "2026-11-09", status: "graduated" },
@@ -1300,6 +1303,7 @@ const PRACTICE_DATA = {
     { id: "cheat-meal-ph", zh: "放纵餐", en: "a cheat meal", tip: "搭配 have", tags: "生活" },
     { id: "the-basics-ph", zh: "必需品", en: "the basics", tip: "出差打包带 the basics", tags: "生活" },
     { id: "travel-light-ph", zh: "轻装出行", en: "travel light", tip: "", tags: "生活" },
+    { id: "change-of-clothes-ph", zh: "（一套）换洗衣物", en: "a change of clothes", tip: "出差打包：pack a change of clothes", tags: "生活" },
     { id: "sleepwear-ph", zh: "睡衣", en: "sleepwear", tip: "", tags: "生活" },
     { id: "ran-out-of-ph", zh: "用完了（流量）", en: "run out of mobile data", tip: "必须带 of", tags: "生活" },
     { id: "video-call-ph", zh: "和某人视频通话", en: "have a video call with sb", tip: "with 不是 to", tags: "生活" },
