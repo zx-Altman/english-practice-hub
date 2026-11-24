@@ -270,7 +270,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-11-24b"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-11-25"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -339,27 +339,58 @@
     extraGrades = [];
     extraAnswers = [];
     extraRevealed = false;
-    const pool = [];
+
+    // 定向抽卡：5 张 = 3 张顽固户（错误次数前 10 里抽）+ 2 张加权随机（错误频次² + 近 3 天再犯加权）
+    const now = Date.now(), RECENT = 3 * 86400000;
+    const errEntries = [];
     (D.errorBank || []).filter(e => e.status !== "graduated").forEach(e => {
-      pool.push({
-        type: "错题强化",
-        q: `<b>【错题强化】</b> 改错或地道表达翻译：<br>❌ 错误/不地道：<span style="color:var(--serious)">${e.wrong}</span>`,
-        a: `⭐ 地道表达：${e.right}`,
-        notes: [e.note]
+      errEntries.push({
+        item: {
+          type: "错题强化",
+          q: `<b>【错题强化】</b>${(e.wrongCount || 0) >= 3 ? ` <span style="color:var(--serious); border:1px solid var(--grid); border-radius:6px; padding:0 6px; font-size:12px;">🔥 顽固户 · 已错 ${e.wrongCount} 次</span>` : ""}<br>❌ 错误/不地道：<span style="color:var(--serious)">${e.wrong}</span>`,
+          a: `⭐ 地道表达：${e.right}`,
+          notes: [e.note]
+        },
+        wrongCount: e.wrongCount || 1,
+        recent: new Date(e.lastWrong) > now - RECENT
       });
     });
+    const noteEntries = [];
     (D.notes || []).forEach(group => {
       group.items.forEach(it => {
-        pool.push({
-          type: "场景地道表达",
-          q: `<b>【场景表达】</b> (${group.scene})<br>中文意图：${it.zh}`,
-          a: `⭐ 地道表达：${it.en}`,
-          notes: [group.scene]
+        noteEntries.push({
+          item: {
+            type: "场景地道表达",
+            q: `<b>【场景表达】</b> (${group.scene})<br>中文意图：${it.zh}`,
+            a: `⭐ 地道表达：${it.en}`,
+            notes: [group.scene]
+          },
+          wrongCount: 0,
+          recent: false
         });
       });
     });
-    pool.sort(() => Math.random() - 0.5);
-    extraItems = pool.slice(0, 5);
+
+    const stubborn = errEntries.slice().sort((a, b) => b.wrongCount - a.wrongCount).slice(0, 10);
+    const all = errEntries.concat(noteEntries);
+    const weight = e => 1 + (e.wrongCount || 0) * (e.wrongCount || 0) + (e.recent ? (e.wrongCount || 1) * 2 : 0);
+
+    const picked = [], pickedQ = new Set();
+    let guard = 0;
+    while (picked.length < 5 && guard++ < 300) {
+      let entry;
+      if (picked.length < Math.min(3, stubborn.length)) {
+        entry = stubborn[Math.floor(Math.random() * stubborn.length)];       // 顽固户位
+      } else {
+        const total = all.reduce((s, e) => s + weight(e), 0);                // 加权随机位
+        let r = Math.random() * total;
+        entry = all[all.length - 1];
+        for (let i = 0; i < all.length; i++) { r -= weight(all[i]); if (r <= 0) { entry = all[i]; break; } }
+      }
+      if (!pickedQ.has(entry.item.q)) { pickedQ.add(entry.item.q); picked.push(entry.item); }
+    }
+    picked.sort(() => Math.random() - 0.5);
+    extraItems = picked;
   }
 
   function copyReport(p, rec) {
