@@ -270,7 +270,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-11-25c"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-11-25d"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -1031,6 +1031,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
           `}
         </div>
         ${flashState.revealed ? (isNew ? `
+          <div style="font-size:12px; color:var(--muted); margin-bottom:8px;">🆕 新卡：先认识，下一轮开始测试</div>
           <button class="btn" id="flashLearnBtn">记住了，下一张</button>` : `
           <div style="display:flex; gap:10px; justify-content:center;">
             <button class="grade-btn" data-g="ok" style="font-size:15px;">✅ 认识</button>
