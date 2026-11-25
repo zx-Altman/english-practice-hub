@@ -270,7 +270,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-11-25b"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-11-25c"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -347,7 +347,7 @@
       errEntries.push({
         item: {
           type: "错题强化",
-          q: `<b>【错题强化】</b>${(e.wrongCount || 0) >= 3 ? ` <span style="color:var(--serious); border:1px solid var(--grid); border-radius:6px; padding:0 6px; font-size:12px;">🔥 顽固户 · 已错 ${e.wrongCount} 次</span>` : ""}<br>❌ 错误/不地道：<span style="color:var(--serious)">${e.wrong}</span>`,
+          q: `<b>【错题强化】</b>${(e.wrongCount || 0) >= 3 ? ` <span style="color:var(--serious); border:1px solid var(--grid); border-radius:6px; padding:0 6px; font-size:12px;">🔥 顽固户 · 已错 ${e.wrongCount} 次</span>` : ""}<br>${e.sc ? `📌 场景：${e.sc}<br>` : ""}❌ 错误/不地道：<span style="color:var(--serious)">${e.wrong}</span>`,
           a: `⭐ 地道表达：${e.right}`,
           notes: [e.note]
         },
