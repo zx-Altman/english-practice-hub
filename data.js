@@ -987,9 +987,9 @@ const PRACTICE_DATA = {
         { q: "造句：同事把门禁卡落在前台了，让你方便的时候帮他取一下，不着急。",
           a: "My colleague left his access card at the front desk — could you pick it up for him whenever it's convenient? No rush.",
           notes: ["left ... at the front desk", "no rush"] },
-        { q: "造句：会议到点了，主持人说今天的内容就到这里收尾。",
-          a: "Time was up, so the host said let's wrap up for today.",
-          notes: ["wrap up"] },
+        { q: "造句：两个星期没练英语了，今天得重新捡起来。",
+          a: "It's been two weeks since I last practiced English, so I need to get back into it today.",
+          notes: ["It's been ... since ...", "get back into it（重新捡起来）"] },
         { q: "造句：安排团建活动别排太满，有的同事容易累。",
           a: "Don't pack the team-building schedule too tightly — some colleagues get tired easily.",
           notes: ["get tired easily"] },
@@ -1202,6 +1202,9 @@ const PRACTICE_DATA = {
   // status: active 活跃 | watching 观察中 | graduated 已毕业
   // 毕业标准：自由输出中自然用对 2 次
   errorBank: [
+    { id: "its-been-since", category: "句式", wrong: "It's almost about 2 weeks that we haven't practice English", right: "It's been almost two weeks since we last practiced English", note: "自从…已经…用 It's been + 时间 + since + 过去式；since 后用过去时", wrongCount: 1, lastWrong: "2026-11-24", status: "active" },
+    { id: "perfect-continuous", category: "语法", wrong: "We have went through this project for a long time", right: "We've been working on this project for a long time", note: "从过去持续到现在的动作用现在完成进行时 have been doing；have went 本身也是错（have gone）", wrongCount: 1, lastWrong: "2026-11-24", status: "active" },
+    { id: "feel-sore", category: "词汇", wrong: "I feel a little soreness", right: "I feel a little sore", note: "sore 是形容词（肌肉酸痛）；soreness 是名词，feel 后接形容词", wrongCount: 1, lastWrong: "2026-11-24", status: "active" },
     { id: "possessive-s", category: "语法", wrong: "today practice / She get's tired easily", right: "today's practice / She gets tired easily", note: "两种 s 别混：①三单动词只加 s 无撇号（she gets）②名词所有格带撇号（today's）——人/时间/组织用 's，其他事物叠词或用 of", wrongCount: 1, lastWrong: "2026-11-24", status: "active" },
     { id: "tense-consistency", category: "语法", wrong: "asked the front desk for help, but she can't open the safe", right: "asked ... for help, but she couldn't open the safe", note: "过去叙事里所有动词时态要一致；11-24 挑错没发现、11-23 中译英全线飘时态，当前最大检测盲区，下周围剿", wrongCount: 1, lastWrong: "2026-11-24", status: "active" },
     { id: "poisoned-virus", category: "词义", wrong: "His computer got poisoned", right: "His computer got a virus", note: "电脑中毒用 virus；poison 是化学毒药，poisoned 是被下毒", wrongCount: 1, lastWrong: "2026-11-23", status: "active" },
@@ -1333,7 +1336,13 @@ const PRACTICE_DATA = {
     { id: "come-up-with-ph", zh: "想出（方案/主意）", en: "come up with an idea", tip: "", tags: "通用" },
     { id: "end-up-ph", zh: "结果（做了某事）", en: "end up doing sth", tip: "后接 doing", tags: "通用" },
     { id: "turn-out-ph", zh: "结果（证明）是", en: "it turns out that ...", tip: "", tags: "通用" },
-    { id: "look-forward-ph", zh: "期待做某事", en: "look forward to doing sth", tip: "to 后接动名词", tags: "通用" }
+    { id: "look-forward-ph", zh: "期待做某事", en: "look forward to doing sth", tip: "to 后接动名词", tags: "通用" },
+    { id: "been-a-while-ph", zh: "好久没…了", en: "It's been a while since we last practiced", tip: "since + 过去式", tags: "生活" },
+    { id: "used-to-own-ph", zh: "习惯了独自生活", en: "be used to living on my own", tip: "be used to + doing ≠ used to do（过去常常）", tags: "生活" },
+    { id: "leg-day-sore-ph", zh: "练腿后一两天酸痛", en: "I feel sore one or two days after leg day", tip: "sore 形容词", tags: "健身" },
+    { id: "street-performers-ph", zh: "街头表演者", en: "street performers", tip: "", tags: "生活" },
+    { id: "keep-simple-ph", zh: "简单安排一下", en: "keep things simple", tip: "", tags: "生活" },
+    { id: "wrap-remaining-ph", zh: "收尾剩余工作", en: "wrap up the remaining work", tip: "", tags: "工作" }
   ],
 
   notes: [

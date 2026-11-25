@@ -270,7 +270,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-11-25"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-11-25b"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -514,6 +514,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
       const ok = rec.grades.filter(g => g === "ok").length;
       const half = rec.grades.filter(g => g === "half").length;
       const bad = rec.grades.filter(g => g === "bad").length;
+      const pushedLog = store.get("ep_pushed", {});
       el.innerHTML = `
         <div class="card">
           <div class="pack-head">
@@ -532,7 +533,7 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
               <span><i class="grade-dot" style="background:var(--serious)"></i>有错 <b>${bad}</b></span>
             </div>
             <div style="display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin:14px 0 6px;">
-              <button class="btn" id="pushGithubBtn">🚀 推送记录至 GitHub</button>
+              <button class="btn" id="pushGithubBtn" ${pushedLog[p.date] && pushedLog[p.date] !== "pending" ? "disabled style='opacity:.55; cursor:default;'" : ""}>${pushedLog[p.date] && pushedLog[p.date] !== "pending" ? "✅ 已推送 GitHub" : "🚀 推送记录至 GitHub"}</button>
               <button class="btn ghost" id="copyReportBtn">📋 复制练习报告</button>
               <button class="btn ghost" id="extraPracticeBtn">🔥 开启额外强化练习</button>
               <button class="btn ghost" id="redo">重做一遍</button>
@@ -552,21 +553,25 @@ ${it.notes && it.notes.length ? `- **要点**: ${it.notes.join('; ')}` : ''}`).j
           ${answerHtml(it)}`;
         rl.appendChild(box);
       });
-      $("#pushGithubBtn").onclick = () => syncToGitHub(p, rec);
+      $("#pushGithubBtn").onclick = () => {
+        const fl = store.get("ep_pushed", {});
+        if (fl[p.date]) return; // 已推送或推送中，防重复
+        syncToGitHub(p, rec);
+      };
       $("#copyReportBtn").onclick = () => copyReport(p, rec);
       $("#extraPracticeBtn").onclick = () => { initExtraMode(); renderToday(); };
       $("#redo").onclick = () => { delete progress[p.date]; store.set("ep_progress", progress); qi = 0; revealed = false; renderToday(); };
       $("#navPrev").onclick = () => { if (packIdx > 0) { packIdx--; revealed = false; renderToday(); } };
       $("#navNext").onclick = () => { if (packIdx < packs.length - 1) { packIdx++; revealed = false; renderToday(); } };
-      // 完成后自动推送打卡（每个题包只自动推一次，重做不重复推；失败不记标记，下次进入自动重试）
-      const pushedLog = store.get("ep_pushed", {});
+      // 完成后自动推送打卡（同步占位防并发重入；失败回滚标记，下次进入自动重试）
       if (localStorage.getItem("ep_github_token") && !pushedLog[p.date]) {
+        pushedLog[p.date] = "pending";
+        store.set("ep_pushed", pushedLog);
         syncToGitHub(p, rec).then(ok => {
-          if (ok) {
-            const pl = store.get("ep_pushed", {});
-            pl[p.date] = new Date().toISOString();
-            store.set("ep_pushed", pl);
-          }
+          const pl = store.get("ep_pushed", {});
+          if (ok) pl[p.date] = new Date().toISOString();
+          else delete pl[p.date];
+          store.set("ep_pushed", pl);
         });
       }
     } else {
