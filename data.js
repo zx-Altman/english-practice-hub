@@ -1202,6 +1202,7 @@ const PRACTICE_DATA = {
   // status: active 活跃 | watching 观察中 | graduated 已毕业
   // 毕业标准：自由输出中自然用对 2 次
   errorBank: [
+    { id: "phone-call", category: "词汇缺口", sc: "用户/同事来电向你求助或通知事情", wrong: "（不会说）他来电话了", right: "I got a call from him. / He called me. / My phone rang.", note: "接到电话最常用 got a call from sb（不说 the phone call，首次提及用 a）；电话响了：My phone rang；回电：call sb back", wrongCount: 1, lastWrong: "2026-11-26", status: "active" },
     { id: "advice-advise", category: "词汇", wrong: "My fitness coach advice me to have a cheat meal", right: "My coach advised me to have a cheat meal a week", note: "advice 是名词，动词是 advise（过去式 advised）", wrongCount: 1, lastWrong: "2026-11-26", status: "active" },
     { id: "listen-to", category: "介词", wrong: "I listen the half of the podcast", right: "I was listening to half of the podcast", note: "listen 是不及物动词，后面必须加 to；进行时 was listening to", wrongCount: 1, lastWrong: "2026-11-26", status: "active" },
     { id: "judgement-review", category: "词汇", wrong: "Before the judgement result showed", right: "Before the review results are announced", note: "工作里的评审是 review，judgement 是法庭判决；结果公布用被动 are announced", wrongCount: 1, lastWrong: "2026-11-26", status: "active" },
@@ -1215,7 +1216,7 @@ const PRACTICE_DATA = {
     { id: "connect-to", sc: "流量用完连酒店 Wi-Fi", category: "介词", wrong: "connect the hotel wifi", right: "connect to the hotel Wi-Fi", note: "连接到网络必须带 to", wrongCount: 1, lastWrong: "2026-11-23", status: "active" },
     { id: "industry-expert", sc: "错过行业专家的直播", category: "词汇缺口", wrong: "the industry model", right: "the industry expert / a big name in the industry", note: "行业大咖 = industry expert 或 big name；model 是模特/模型", wrongCount: 1, lastWrong: "2026-11-23", status: "active" },
     { id: "chinese-placeholder", sc: "造句时想不起英文词", category: "习惯", wrong: "the online 发布会 livestream / the best 深蹲 pr record", right: "the online launch livestream / a new squat PR", note: "英文句子里不要留中文占位：路由器=router、发布会=launch event、深蹲=squats（第 2 次：路由器）", wrongCount: 2, lastWrong: "2026-11-26", status: "active" },
-    { id: "problem-happen", sc: "系统刚升级，需待命以防出问题", category: "语法", wrong: "in case problem happen", right: "in case problems happen / in case any problems come up", note: "可数名词不能单数裸用作主语：run into a serious problem / run into problems（11-19 造句又两次裸用）", wrongCount: 3, lastWrong: "2026-11-19", status: "active" },
+    { id: "problem-happen", sc: "系统刚升级，需待命以防出问题", category: "语法", wrong: "in case problem happen", right: "in case problems happen / in case any problems come up", note: "可数名词不能单数裸用：要么复数（problems happen），要么加 any/a（any problems come up / a problem comes up）", wrongCount: 3, lastWrong: "2026-11-19", status: "active" },
     { id: "livestream-replay", category: "词汇缺口", wrong: "I missed live yesterday and i will watch the record video", right: "I missed yesterday's livestream, so I'm watching the replay today", note: "直播是 livestream（名词），回放是 replay；\"live\" 单独不能作名词", wrongCount: 2, lastWrong: "2026-11-19", status: "graduated" },
     { id: "responser", sc: "开会时对方语速太快没全听清", category: "词汇缺口", wrong: "The other side representer", right: "the other side spoke too fast in the meeting", note: "直播 livestream / 回放 replay（11-19 造句三连用对：livestream + replay + make up for it，毕业观察中）", wrongCount: 3, lastWrong: "2026-11-19", status: "active" },
     { id: "race-time", sc: "跑步/卧推刷新个人最好成绩", category: "词汇缺口", wrong: "I got the best personal pr record", right: "I ran my best 5K time ever — I hit a new PR", note: "深蹲是 squats；PR 已含 personal record 之意，不要堆叠成 personal pr record；刷新纪录说 hit a new PR", wrongCount: 3, lastWrong: "2026-11-19", status: "active" },
@@ -1350,7 +1351,8 @@ const PRACTICE_DATA = {
     { id: "been-up-to-ph", zh: "最近在忙什么", en: "what I've been up to", tip: "问近况：What have you been up to?", tags: "生活" },
     { id: "in-practice-ph", zh: "在实际中/现实中", en: "in practice", tip: "In practice, things don't always match the theory", tags: "通用" },
     { id: "day-to-day-ph", zh: "日常业务", en: "day-to-day business", tip: "", tags: "工作" },
-    { id: "purchasing-ph", zh: "采购", en: "purchasing / procurement", tip: "供应链语境两个词都常用", tags: "工作" }
+    { id: "purchasing-ph", zh: "采购", en: "purchasing / procurement", tip: "供应链语境两个词都常用", tags: "工作" },
+    { id: "got-a-call-ph", zh: "接到某人电话", en: "I got a call from him", tip: "不说 the phone call；电话响了 = My phone rang", tags: "生活" }
   ],
 
   notes: [
