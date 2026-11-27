@@ -270,7 +270,7 @@
   </div>
 </div>
 
-<script src="data.js?v=2026-11-26c"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
+<script src="data.js?v=2026-11-27b"></script><!-- ?v= 版本号随 data.js 更新同步修改，用于绕过浏览器缓存 -->
 <script>
 (function () {
   "use strict";
@@ -372,7 +372,7 @@
     });
 
     const stubborn = errEntries.slice().sort((a, b) => b.wrongCount - a.wrongCount).slice(0, 10);
-    const all = errEntries.concat(noteEntries);
+    const all = errEntries; // 纯错题本驱动：场景表达类不再进入强化练习（针对性优先）
     const weight = e => 1 + (e.wrongCount || 0) * (e.wrongCount || 0) + (e.recent ? (e.wrongCount || 1) * 2 : 0);
 
     const picked = [], pickedQ = new Set();
